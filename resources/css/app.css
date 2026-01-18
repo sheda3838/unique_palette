@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}
+
+:root {
+    --primary-teal: #1abc9c;
+    --primary-teal-hover: #16a085;
+    --dark-navy: #2c3e50;
+}
+
+.btn-primary-teal {
+    @apply px-5 py-2.5 bg-[#1ABC9C] text-white rounded-full font-black uppercase tracking-wider text-xs shadow-lg shadow-teal-100 hover:bg-teal-600 hover:shadow-xl transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer;
+}
+
+/* Custom Nav Link Styles */
+.nav-link-custom {
+    @apply inline-flex items-center px-1 pt-1 border-b-4 text-sm font-bold leading-5 transition duration-150 ease-in-out uppercase tracking-wider h-20;
+}
+
+.nav-link-active {
+    @apply border-[#1ABC9C] text-[#2C3E50] focus:outline-none focus:border-teal-700;
+}
+
+.nav-link-inactive {
+    @apply border-transparent text-gray-500 hover:text-[#1ABC9C] hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300;
+}
+
+/* Responsive Nav Link Styles */
+.responsive-nav-link-custom {
+    @apply block w-full pl-6 pr-4 py-3 border-l-4 text-left text-base font-bold transition duration-150 ease-in-out uppercase tracking-wider;
+}
+
+.responsive-nav-link-active {
+    @apply border-[#1ABC9C] text-[#1ABC9C] bg-teal-50 focus:outline-none focus:text-teal-800 focus:bg-teal-100 focus:border-teal-700;
+}
+
+.responsive-nav-link-inactive {
+    @apply border-transparent text-gray-600 hover:text-[#1ABC9C] hover:bg-teal-50 hover:border-gray-300 focus:outline-none focus:text-teal-800 focus:bg-teal-50 focus:border-gray-300;
+}
+/* --- Art-Themed Loading System --- 
+   This custom loading system transforms technical latency into a brand-aligned creative moment. 
+   The 'brush-stroke' loader mimics the act of painting, reinforcing the identity of a curated marketplace, 
+   while providing smooth visual continuity (no layout shifts) and immediate interaction feedback.
+*/
+
+/* 1. Brush Stroke Top-Bar Loader */
+@keyframes paint-stroke {
+    0% {
+        transform: translateX(-110%) rotate(-1deg);
+        width: 20%;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-20%) rotate(0.5deg);
+        width: 70%;
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(110%) rotate(-1deg);
+        width: 40%;
+        opacity: 0;
+    }
+}
+
+.brush-stroke-loader {
+    height: 8px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--primary-teal) 15%,
+        #2ecc71 45%,
+        #1abc9c 75%,
+        transparent 100%
+    );
+    filter: blur(0.8px);
+    position: relative;
+    border-radius: 4px 100% 100% 4px;
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    animation: paint-stroke 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+/* Brush-stroke texture overlay */
+.brush-stroke-loader::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 0px,
+        rgba(255, 255, 255, 0.1) 1px,
+        transparent 1px,
+        transparent 4px
+    );
+}
+
+/* 2. Brush-Tip Spinner for Buttons/Modals */
+@keyframes brush-dip {
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-3px) rotate(15deg);
+    }
+}
+
+@keyframes paint-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.brush-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(26, 188, 156, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--primary-teal);
+    animation: paint-spin 0.8s linear infinite;
+    position: relative;
+}
+
+/* Simulated Brush Tip on Spinner */
+.brush-spinner::before {
+    content: "🖌️";
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    font-size: 14px;
+    animation: brush-dip 0.5s ease-in-out infinite;
+}
+
+/* 3. Paint-Dot Loading (minimalist) */
+.paint-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.paint-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--primary-teal);
+    border-radius: 50%;
+    animation: paint-jump 0.6s ease-in-out infinite alternate;
+}
+
+.paint-dot:nth-child(2) {
+    animation-delay: 0.1s;
+    background-color: #2ecc71;
+}
+.paint-dot:nth-child(3) {
+    animation-delay: 0.2s;
+    background-color: var(--dark-navy);
+}
+
+@keyframes paint-jump {
+    from {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    to {
+        transform: scale(1.5);
+        opacity: 1;
+    }
+}
