@@ -6,6 +6,8 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
+            buildDirectory: 'public/build',
         }),
     ],
+    base: '/', // Important for correct paths in production
 });
