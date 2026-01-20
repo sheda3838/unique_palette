@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Allow seeded artwork images
+!storage/app/public/artworks/
+!storage/app/public/artworks/**
