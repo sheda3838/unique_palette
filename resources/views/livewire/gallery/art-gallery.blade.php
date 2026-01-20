@@ -273,4 +273,7 @@
     @endif
 </div>
 
+<p>{{ $artwork->image_url }}</p>
+
+
 </div>
