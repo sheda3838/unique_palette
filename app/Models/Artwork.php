@@ -1,9 +1,4 @@
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Artwork extends Model
 {
@@ -18,7 +13,9 @@ class Artwork extends Model
         'status',
     ];
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    protected $appends = ['image_url'];
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -29,10 +26,11 @@ class Artwork extends Model
             return asset('assets/placeholder.png');
         }
 
-        if (str_starts_with($this->image_path, 'assets/')) {
-            return asset($this->image_path);
+        // If already a full URL (Cloudinary / S3)
+        if (str_starts_with($this->image_path, 'http')) {
+            return $this->image_path;
         }
 
-        return \Illuminate\Support\Facades\Storage::url($this->image_path);
+        return Storage::url($this->image_path);
     }
 }
