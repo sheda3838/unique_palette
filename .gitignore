@@ -15,14 +15,12 @@
 /node_modules
 /public/build
 /public/hot
-/public/storage
-/storage/*.key
-/storage/pail
+# /public/storage
+# /storage/*.key
+# /storage/pail
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# Allow seeded artwork images
-!storage/app/public/artworks/
-!storage/app/public/artworks/**
+
