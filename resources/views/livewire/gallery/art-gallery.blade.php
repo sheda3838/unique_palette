@@ -46,7 +46,7 @@
             @foreach($artworks as $artwork)
             <div wire:key="artwork-{{ $artwork->id }}" class="group bg-white dark:bg-gray-800 rounded-[40px] overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-700 flex flex-col h-full cursor-pointer relative" wire:click="viewArtwork({{ $artwork->id }})">
                 <div class="relative h-72 overflow-hidden">
-                    <img src="{{ asset('assets/' . $artwork->image_path) }}" alt="{{ $artwork->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <img src="{{ asset($artwork->image_path) }}" alt="{{ $artwork->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                     <div class="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-colors"></div>
 
                     @if($artwork->status === 'sold')
@@ -123,7 +123,7 @@
                     <div class="lg:flex lg:items-start lg:gap-10">
                         <div class="lg:w-1/2">
                             <div class="rounded-[30px] overflow-hidden shadow-inner bg-gray-50 border border-gray-100">
-                                <img src="{{ asset('assets/' . $selectedArtwork->image_path) }}" class="w-full h-auto object-cover max-h-[500px]" alt="{{ $selectedArtwork->title }}">
+                                <img src="{{ asset($selectedArtwork->image_path) }}" class="w-full h-auto object-cover max-h-[500px]" alt="{{ $selectedArtwork->title }}">
 
                             </div>
                         </div>
@@ -213,7 +213,7 @@
                             @foreach($this->cart as $item)
                             <li class="py-6 flex items-center gap-6 group">
                                 <div class="h-24 w-24 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0 shadow-sm">
-                                    <img src="{{ asset('assets/' . $item->artwork->image_path) }}" alt="{{ $item->artwork->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                                    <img src="{{ asset($item->artwork->image_path) }}" alt="{{ $item->artwork->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
 
                                 </div>
                                 <div class="flex-1 flex flex-col">
