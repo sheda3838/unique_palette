@@ -28,17 +28,26 @@ class Artwork extends Model
     }
 
     public function getImageUrlAttribute(): string
-    {
-        if (!$this->image_path) {
-            return asset('assets/placeholder.png');
-        }
-
-        // Cloudinary / S3 / full URL
-        if (Str::startsWith($this->image_path, ['http://', 'https://'])) {
-            return $this->image_path;
-        }
-
-        // Local storage
-        return Storage::url($this->image_path);
+{
+    if (!$this->image_path) {
+        return asset('assets/placeholder.png');
     }
+
+    // If already a full URL (Cloudinary/S3/etc)
+    if (Str::startsWith($this->image_path, ['http://', 'https://'])) {
+        return $this->image_path;
+    }
+
+    // ✅ If it's your seeded/static images folder (public/assets/...)
+    // Example in DB: "Artworks/a1.jpg" or "artworks/a1.jpg"
+    if (Str::startsWith(strtolower($this->image_path), ['artworks/'])) {
+        return asset('assets/' . $this->image_path); 
+        // public/assets/Artworks/a1.jpg (keep your DB case)
+    }
+
+    // ✅ Otherwise treat it as uploaded file stored in storage/app/public
+    // Example in DB: "uploads/..." or "artworks/abc.png"
+    return Storage::disk('public')->url($this->image_path); // -> /storage/...
+}
+
 }
