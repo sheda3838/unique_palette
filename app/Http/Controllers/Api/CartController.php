@@ -46,15 +46,19 @@ class CartController extends Controller
             return response()->json(['message' => 'Artwork is not available for purchase.'], 422);
         }
 
-        $cartItem = CartItem::updateOrCreate(
-            [
+        $cartItem = CartItem::where('user_id', Auth::id())
+            ->where('artwork_id', $request->artwork_id)
+            ->first();
+
+        if ($cartItem) {
+            $cartItem->increment('quantity', $request->quantity ?? 1);
+        } else {
+            $cartItem = CartItem::create([
                 'user_id' => Auth::id(),
                 'artwork_id' => $request->artwork_id,
-            ],
-            [
-                'quantity' => \DB::raw('quantity + ' . ($request->quantity ?? 1)),
-            ]
-        );
+                'quantity' => $request->quantity ?? 1,
+            ]);
+        }
 
         return response()->json([
             'message' => 'Added to cart successfully',

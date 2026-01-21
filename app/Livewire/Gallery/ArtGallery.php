@@ -68,7 +68,7 @@ class ArtGallery extends Component
 
         CartItem::updateOrCreate(
             ['user_id' => Auth::id(), 'artwork_id' => $id],
-            ['quantity' => DB::raw('quantity + 1')]
+            ['quantity' => 1]
         );
 
         $this->dispatch('cartUpdated');
