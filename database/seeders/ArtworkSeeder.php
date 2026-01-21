@@ -37,7 +37,7 @@ class ArtworkSeeder extends Seeder
                 [
                     'description' => 'A unique masterpiece captured on canvas, showcasing the beauty of artistic expression. This piece is part of the exclusive Master Artist collection.',
                     'price' => rand(150, 450),
-                    'image_path' => 'assets/artworks/a' . $i . '.jpg',
+                    'image_path' => 'assets/Artworks/a' . $i . '.jpg',
                     'status' => $statuses[$i - 1],
                 ]
             );
