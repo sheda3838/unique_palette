@@ -28,17 +28,14 @@ class Artwork extends Model
     }
 
     public function getImageUrlAttribute(): string
-    {
-        if (!$this->image_path) {
-            return asset('assets/placeholder.png');
-        }
+{
+    if (!$this->image_path) return asset('assets/placeholder.png');
 
-        // Cloudinary / S3 / full URL
-        if (Str::startsWith($this->image_path, ['http://', 'https://'])) {
-            return $this->image_path;
-        }
+    if (Str::startsWith($this->image_path, ['http://', 'https://'])) return $this->image_path;
 
-        // Local storage
-        return Storage::url($this->image_path);
-    }
+    $path = Str::replaceFirst('public/', '', $this->image_path);
+
+    return Storage::url($path);
+}
+
 }
