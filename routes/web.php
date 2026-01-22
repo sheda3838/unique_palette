@@ -27,6 +27,10 @@ Route::get('/', \App\Livewire\Home::class)->name('welcome');
 Route::get('/gallery', ArtGallery::class)->name('gallery');
 Route::get('/about-us', \App\Livewire\AboutUs::class)->name('about-us');
 
+// Image serving routes (BLOB)
+Route::get('/artwork-image/{id}', [\App\Http\Controllers\ImageController::class, 'showArtwork'])->name('artwork.image');
+Route::get('/profile-image/{id}', [\App\Http\Controllers\ImageController::class, 'showProfile'])->name('profile.image');
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', \App\Livewire\Auth\Login::class)->name('login');
     Route::get('/register', \App\Livewire\Auth\Register::class)->name('register');

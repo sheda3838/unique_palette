@@ -24,7 +24,7 @@
             @forelse($artworks as $artwork)
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg transition hover:scale-105 duration-300">
                 <div class="relative">
-                    @if($artwork->image_path)
+                    @if($artwork->image_path || $artwork->image_blob)
                     <img src="{{ $artwork->image_url }}" alt="{{ $artwork->title }}" class="w-full h-64 object-cover">
                     @else
                     <div class="w-full h-64 bg-gray-200 flex items-center justify-center">

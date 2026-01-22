@@ -28,7 +28,7 @@
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            @if($artwork->image_path)
+                            @if($artwork->image_path || $artwork->image_blob)
                             <div class="flex-shrink-0 h-10 w-10">
                                 <img class="h-10 w-10 rounded-full object-cover" src="{{ $artwork->image_url }}" alt="">
                             </div>
@@ -87,7 +87,7 @@
                 <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="sm:w-1/2">
-                            @if($selectedArtwork->image_path)
+                            @if($selectedArtwork->image_path || $selectedArtwork->image_blob)
                             <img src="{{ $selectedArtwork->image_url }}" class="rounded-lg shadow-md object-cover w-full h-96" alt="{{ $selectedArtwork->title }}">
                             @endif
                         </div>

@@ -31,6 +31,8 @@ class User extends Authenticatable
         'password',
         'google_id',
         'role',
+        'profile_image_blob',
+        'profile_image_mime',
     ];
 
     /**
@@ -52,6 +54,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'profile_image_url',
     ];
 
     /**
@@ -99,5 +102,14 @@ class User extends Authenticatable
     public function isBuyer(): bool
     {
         return $this->role === 'buyer';
+    }
+
+    public function getProfileImageUrlAttribute(): string
+    {
+        if ($this->profile_image_blob) {
+            return route('profile.image', ['id' => $this->id]);
+        }
+
+        return $this->profile_photo_url;
     }
 }

@@ -9,8 +9,8 @@
                     @foreach($cartItems as $item)
                     <li class="py-4 flex">
                         <div class="shrink-0">
-                            @if(isset($item['image_url']))
-                            <img class="h-24 w-24 rounded-md object-cover" src="{{ $item['image_url'] }}" alt="{{ $item['title'] }}">
+                            @if($item->artwork && ($item->artwork->image_path || $item->artwork->image_blob))
+                            <img class="h-24 w-24 rounded-md object-cover" src="{{ $item->artwork->image_url }}" alt="{{ $item->artwork->title }}">
                             @else
                             <div class="h-24 w-24 rounded-md bg-gray-200 flex items-center justify-center">
                                 <span class="text-gray-400 text-xs">No Image</span>
@@ -20,15 +20,15 @@
                         <div class="ml-4 flex-1 flex flex-col justify-between">
                             <div>
                                 <div class="flex justify-between text-base font-medium text-gray-900 dark:text-white">
-                                    <h3>{{ $item['title'] }}</h3>
-                                    <p class="ml-4">${{ number_format($item['price'], 2) }}</p>
+                                    <h3>{{ $item->artwork->title ?? 'Unknown' }}</h3>
+                                    <p class="ml-4">LKR {{ number_format($item->artwork->price ?? 0, 2) }}</p>
                                 </div>
-                                <p class="mt-1 text-sm text-gray-500">Artist: {{ $item['artist_name'] ?? 'Unknown' }}</p>
+                                <p class="mt-1 text-sm text-gray-500">Artist: {{ $item->artwork->user->name ?? 'Unknown' }}</p>
                             </div>
                             <div class="flex items-end justify-between text-sm">
-                                <div class="text-gray-500">Qty 1</div>
+                                <div class="text-gray-500">Qty {{ $item->quantity }}</div>
                                 <div class="flex">
-                                    <button wire:click="removeFromCart({{ $item['id'] }})" type="button" class="font-medium text-indigo-600 hover:text-indigo-500">Remove</button>
+                                    <button wire:click="removeFromCart({{ $item->artwork_id }})" type="button" class="font-medium text-indigo-600 hover:text-indigo-500">Remove</button>
                                 </div>
                             </div>
                         </div>

@@ -62,7 +62,7 @@
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
                                 <button class="flex items-center text-sm border-2 border-[#1ABC9C] rounded-full focus:outline-none focus:border-teal-700 transition shadow-sm p-0.5 group relative">
-                                    <img class="h-10 w-10 rounded-full object-cover border border-white" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                                    <img class="h-10 w-10 rounded-full object-cover border border-white" src="{{ Auth::user()->profile_image_url }}" alt="{{ Auth::user()->name }}" />
                                     <div class="absolute -bottom-1 -right-1 bg-[#1ABC9C] rounded-full p-1 border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
                                         <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
@@ -158,7 +158,7 @@
                 <div class="flex items-center px-6">
                     @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                     <div class="shrink-0 me-3">
-                        <img class="size-10 rounded-full object-cover border-2 border-[#1ABC9C]" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                        <img class="size-10 rounded-full object-cover border-2 border-[#1ABC9C]" src="{{ Auth::user()->profile_image_url }}" alt="{{ Auth::user()->name }}" />
                     </div>
                     @endif
                     <div>
