@@ -82,7 +82,7 @@ class ArtGallery extends Component
             return;
         }
 
-        $artwork = Artwork::find($id);
+        $artwork = Artwork::select('id', 'status')->find($id);
 
         if (!$artwork || $artwork->status !== 'approved') {
             return;
@@ -121,7 +121,7 @@ class ArtGallery extends Component
             abort(403);
         }
 
-        $artwork = Artwork::where('id', $id)->where('user_id', Auth::id())->first();
+        $artwork = Artwork::select('id', 'user_id', 'status')->where('id', $id)->where('user_id', Auth::id())->first();
 
         if ($artwork) {
             if ($artwork->status === 'sold') {

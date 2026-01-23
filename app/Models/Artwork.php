@@ -39,15 +39,15 @@ class Artwork extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getImageUrlAttribute(): string
+public function getImageUrlAttribute(): string
 {
-    // IMPORTANT: works even when image_blob is NOT selected in queries
+    // Prefer computed flag if query provided it
     $hasBlob = false;
 
     if (array_key_exists('has_image_blob', $this->attributes)) {
         $hasBlob = (bool) $this->attributes['has_image_blob'];
     } else {
-        // fallback when blob is actually loaded
+        // fallback (only if blob was actually selected)
         $hasBlob = !empty($this->image_blob);
     }
 
@@ -72,7 +72,13 @@ class Artwork extends Model
     }
 
     $path = Str::replaceFirst('public/', '', $this->image_path);
-    return Storage::url($path);
+
+    if (Storage::disk('public')->exists($path)) {
+        return Storage::url($path);
+    }
+
+    return asset('assets/placeholder.png');
 }
+
 
 }

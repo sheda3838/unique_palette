@@ -50,7 +50,7 @@ class EditArtwork extends Component
             'status' => 'pending', // Re-approval required
         ];
 
-        $artwork = Artwork::select('id', 'image_blob', 'image_mime')->findOrFail($this->artworkId);
+        $artwork = Artwork::select('id')->findOrFail($this->artworkId);
 
         if ($this->image) {
             $imageData = file_get_contents($this->image->getRealPath());

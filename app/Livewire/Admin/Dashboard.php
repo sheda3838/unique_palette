@@ -79,7 +79,7 @@ class Dashboard extends Component
     public function approveArtwork()
     {
         if ($this->selectedArtwork && $this->selectedArtwork['status'] === 'pending') {
-            $artwork = Artwork::find($this->selectedArtwork['id']);
+            $artwork = Artwork::select('id', 'status')->find($this->selectedArtwork['id']);
             if ($artwork) {
                 $artwork->update(['status' => 'approved']);
                 session()->flash('message', 'Artwork approved successfully.');
@@ -91,7 +91,7 @@ class Dashboard extends Component
     public function rejectArtwork()
     {
         if ($this->selectedArtwork && $this->selectedArtwork['status'] === 'pending') {
-            $artwork = Artwork::find($this->selectedArtwork['id']);
+            $artwork = Artwork::select('id', 'status')->find($this->selectedArtwork['id']);
             if ($artwork) {
                 $artwork->update(['status' => 'rejected']);
                 session()->flash('message', 'Artwork rejected.');

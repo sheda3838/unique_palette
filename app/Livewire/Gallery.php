@@ -49,7 +49,7 @@ class Gallery extends Component
             return;
         }
 
-        $artwork = Artwork::find($artworkId);
+        $artwork = Artwork::select('id', 'title', 'price', 'image_path')->find($artworkId);
 
         if (!$artwork) {
             return;

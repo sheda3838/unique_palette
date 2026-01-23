@@ -77,7 +77,7 @@ class Checkout extends Component
             // Create Order Items
             foreach ($this->cartItems as $cartItem) {
                 // Re-fetch artwork from DB for security and safe data
-                $artwork = Artwork::find($cartItem['artwork_id']);
+                $artwork = Artwork::select('id', 'price', 'status')->find($cartItem['artwork_id']);
 
                 if (!$artwork || $artwork->status !== 'approved') {
                     throw new \Exception("Artwork is no longer available.");
