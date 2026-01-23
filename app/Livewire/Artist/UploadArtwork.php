@@ -5,6 +5,7 @@ namespace App\Livewire\Artist;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Artwork;
+use Illuminate\Support\Facades\Log;
 
 class UploadArtwork extends Component
 {
@@ -23,48 +24,55 @@ class UploadArtwork extends Component
         }
     }
 
-    // Start smaller to avoid Railway/PHP/DB limits. Increase later.
     protected $rules = [
         'title' => 'required|string|max:255',
         'price' => 'required|numeric|min:0',
         'description' => 'required|string',
-        'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048', // 2MB
+        // IMPORTANT: keep smaller for DB BLOB inserts (Railway MySQL can reject big packets)
+        'image' => 'required|image|mimes:jpeg,png,webp|max:1024', // 1MB
     ];
 
     public function updatedImage()
     {
-        $this->validateOnly('image', [
-            'image' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $this->validateOnly('image');
     }
 
     public function save()
     {
         $this->validate();
 
-        // IMPORTANT: keep $this->image as UploadedFile (don't overwrite it)
-        $file = $this->image;
+        try {
+            $imageData = file_get_contents($this->image->getRealPath());
+            $imageMime = $this->image->getMimeType();
 
-        $imageData = file_get_contents($file->getRealPath());
-        $imageMime = $file->getClientMimeType(); // safer than getMimeType()
+            Artwork::create([
+                'user_id' => auth()->id(),
+                'title' => $this->title,
+                'price' => $this->price,
+                'description' => $this->description,
+                'image_path' => null,
+                'image_blob' => $imageData,
+                'image_mime' => $imageMime,
+                'status' => 'pending',
+            ]);
 
-        Artwork::create([
-            'user_id' => auth()->id(),
-            'title' => $this->title,
-            'price' => $this->price,
-            'description' => $this->description,
-            'image_path' => null,
-            'image_blob' => $imageData,
-            'image_mime' => $imageMime,
-            'status' => 'pending',
-        ]);
+            session()->flash('message', 'Artwork successfully uploaded and is pending approval.');
 
-        // reset inputs so Livewire doesn't keep old temp file
-        $this->reset(['title', 'price', 'description', 'image']);
+            return $this->redirectRoute('artist.artworks', navigate: true);
 
-        session()->flash('message', 'Artwork successfully uploaded and is pending approval.');
+        } catch (\Throwable $e) {
+            // LOG SAFELY (DO NOT dump $imageData or full exception context)
+            Log::error('UploadArtwork save failed', [
+                'user_id' => auth()->id(),
+                'msg' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'type' => get_class($e),
+            ]);
 
-        return $this->redirectRoute('artist.artworks', navigate: true);
+            // show a clean message (no crash screen)
+            $this->addError('image', 'Upload failed on server. Check Railway logs (we logged the real reason). Try a smaller image (under 1MB).');
+            return;
+        }
     }
 
     public function render()
