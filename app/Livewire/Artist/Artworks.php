@@ -50,8 +50,20 @@ class Artworks extends Component
 
     public function viewArtwork($id)
     {
-        $this->selectedArtwork = Artwork::with('user')->find($id);
-        $this->showModal = true;
+        $artwork = Artwork::select('id', 'title', 'price', 'description', 'status', 'image_path')
+            ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+            ->find($id);
+        if ($artwork) {
+            $this->selectedArtwork = [
+                'id' => $artwork->id,
+                'title' => $artwork->title,
+                'price' => $artwork->price,
+                'description' => $artwork->description,
+                'status' => $artwork->status,
+                'image_url' => $artwork->image_url,
+            ];
+            $this->showModal = true;
+        }
     }
 
     public function closeModal()
@@ -63,7 +75,11 @@ class Artworks extends Component
     public function render()
     {
         return view('livewire.artist.artworks', [
-            'artworks' => Artwork::where('user_id', Auth::id())->latest()->paginate(9),
+            'artworks' => Artwork::select('id', 'title', 'price', 'status', 'image_path')
+                ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+                ->where('user_id', Auth::id())
+                ->latest()
+                ->paginate(9),
         ])->layout('layouts.app');
     }
 }

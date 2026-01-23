@@ -42,7 +42,7 @@
                 {{ __('Select A New Photo') }}
             </x-secondary-button>
 
-            @if ($this->user->profile_photo_path || $this->user->profile_image_blob)
+            @if ($this->user->profile_photo_path || $this->user->has_profile_image_blob)
             <x-secondary-button type="button" class="mt-2" wire:click="deleteProfilePhoto">
                 {{ __('Remove Photo') }}
             </x-secondary-button>

@@ -22,17 +22,17 @@
                     @foreach($cartItems as $item)
                     <li class="py-6 flex justify-between items-center group">
                         <div class="flex items-center gap-6">
-                            @if($item->artwork && ($item->artwork->image_path || $item->artwork->image_blob))
+                            @if($item['artwork'])
                             <div class="h-20 w-20 rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex-shrink-0">
-                                <img class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" src="{{ $item->artwork->image_url }}" alt="{{ $item->artwork->title }}">
+                                <img class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" src="{{ $item['artwork']['image_url'] }}" alt="{{ $item['artwork']['title'] }}">
                             </div>
                             @endif
                             <div>
-                                <p class="text-[#2C3E50] dark:text-white font-black text-lg uppercase tracking-tight">{{ $item->artwork->title ?? 'Unknown' }}</p>
-                                <p class="text-gray-400 font-bold text-xs uppercase tracking-widest mt-1">by {{ $item->artwork->user->name ?? 'Unknown Artist' }}</p>
+                                <p class="text-[#2C3E50] dark:text-white font-black text-lg uppercase tracking-tight">{{ $item['artwork']['title'] ?? 'Unknown' }}</p>
+                                <p class="text-gray-400 font-bold text-xs uppercase tracking-widest mt-1">by {{ $item['artwork']['user']['name'] ?? 'Unknown Artist' }}</p>
                             </div>
                         </div>
-                        <span class="text-lg font-black text-[#1ABC9C]">LKR {{ number_format($item->artwork->price ?? 0, 2) }}</span>
+                        <span class="text-lg font-black text-[#1ABC9C]">LKR {{ number_format($item['artwork']['price'] ?? 0, 2) }}</span>
                     </li>
                     @endforeach
                 </ul>

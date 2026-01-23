@@ -153,7 +153,7 @@
                         <tr class="alternating-row transition-colors">
                             @if($activeTab === 'buyers' || $activeTab === 'artists')
                             <td class="px-8 py-4">
-                                <img src="{{ $item->profile_photo_url }}" class="h-16 w-16 rounded-full border-2 border-[#1ABC9C] object-cover" alt="{{ $item->name }}">
+                                <img src="{{ $item->profile_image_url }}" class="h-16 w-16 rounded-full border-2 border-[#1ABC9C] object-cover" alt="{{ $item->name }}">
                             </td>
                             <td class="px-8 py-4 font-bold text-[#2C3E50]">{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</td>
                             <td class="px-8 py-4 font-bold text-[#2C3E50]">{{ $item->name }}</td>
@@ -209,28 +209,28 @@
     <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#2C3E50]/40 backdrop-blur-sm">
         <div class="bg-white rounded-[40px] shadow-2xl max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border-4 border-teal-50">
             <div class="md:w-1/2">
-                <img src="{{ $selectedArtwork->image_url }}" class="w-full h-full object-cover" alt="{{ $selectedArtwork->title }}">
+                <img src="{{ $selectedArtwork['image_url'] }}" class="w-full h-full object-cover" alt="{{ $selectedArtwork['title'] }}">
             </div>
             <div class="md:w-1/2 p-10 flex flex-col">
-                <h3 class="text-3xl font-extrabold text-[#2C3E50] uppercase tracking-tighter mb-2">{{ $selectedArtwork->title }}</h3>
-                <p class="text-2xl font-bold text-[#1ABC9C] mb-6">LKR {{ number_format($selectedArtwork->price, 2) }}</p>
+                <h3 class="text-3xl font-extrabold text-[#2C3E50] uppercase tracking-tighter mb-2">{{ $selectedArtwork['title'] }}</h3>
+                <p class="text-2xl font-bold text-[#1ABC9C] mb-6">LKR {{ number_format($selectedArtwork['price'], 2) }}</p>
 
                 <div class="flex-1 space-y-6">
                     <div>
                         <h4 class="text-xs font-bold text-[#1ABC9C] uppercase tracking-widest mb-2">Description</h4>
-                        <p class="text-gray-600 font-medium leading-relaxed">{{ $selectedArtwork->description }}</p>
+                        <p class="text-gray-600 font-medium leading-relaxed">{{ $selectedArtwork['description'] }}</p>
                     </div>
                     <div class="flex items-center gap-4">
-                        <img src="{{ $selectedArtwork->user->profile_photo_url }}" class="h-12 w-12 rounded-full border-2 border-[#1ABC9C]" alt="Artist">
+                        <img src="{{ $selectedArtwork['user']['profile_image_url'] }}" class="h-12 w-12 rounded-full border-2 border-[#1ABC9C]" alt="Artist">
                         <div>
                             <p class="text-[10px] font-bold text-teal-600 uppercase">Artist</p>
-                            <p class="text-base font-bold text-[#2C3E50] uppercase">{{ $selectedArtwork->user->name }}</p>
+                            <p class="text-base font-bold text-[#2C3E50] uppercase">{{ $selectedArtwork['user']['name'] }}</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-10 pt-8 border-t border-gray-100 flex flex-col gap-4">
-                    @if($selectedArtwork->status === 'pending')
+                    @if($selectedArtwork['status'] === 'pending')
                     <div class="grid grid-cols-2 gap-4">
                         <button wire:click="approveArtwork" class="py-4 bg-[#1ABC9C] text-white font-extrabold rounded-2xl uppercase tracking-widest text-xs hover:bg-teal-600 transition-all">Approve</button>
                         <button wire:click="rejectArtwork" class="py-4 bg-red-50 text-red-600 font-extrabold rounded-2xl border-2 border-red-100 uppercase tracking-widest text-xs hover:bg-red-600 hover:text-white transition-all">Reject</button>

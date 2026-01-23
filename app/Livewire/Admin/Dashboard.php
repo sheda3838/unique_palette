@@ -48,8 +48,26 @@ class Dashboard extends Component
 
     public function viewArtwork($id)
     {
-        $this->selectedArtwork = Artwork::with('user')->find($id);
-        $this->showArtworkModal = true;
+        $artwork = Artwork::with('user:id,name')
+            ->select('id', 'user_id', 'title', 'price', 'description', 'status', 'image_path')
+            ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+            ->find($id);
+
+        if ($artwork) {
+            $this->selectedArtwork = [
+                'id' => $artwork->id,
+                'title' => $artwork->title,
+                'price' => $artwork->price,
+                'description' => $artwork->description,
+                'status' => $artwork->status,
+                'image_url' => $artwork->image_url,
+                'user' => [
+                    'name' => $artwork->user->name,
+                    'profile_image_url' => $artwork->user->profile_image_url,
+                ],
+            ];
+            $this->showArtworkModal = true;
+        }
     }
 
     public function closeArtworkModal()
@@ -60,19 +78,25 @@ class Dashboard extends Component
 
     public function approveArtwork()
     {
-        if ($this->selectedArtwork && $this->selectedArtwork->status === 'pending') {
-            $this->selectedArtwork->update(['status' => 'approved']);
-            session()->flash('message', 'Artwork approved successfully.');
-            $this->closeArtworkModal();
+        if ($this->selectedArtwork && $this->selectedArtwork['status'] === 'pending') {
+            $artwork = Artwork::find($this->selectedArtwork['id']);
+            if ($artwork) {
+                $artwork->update(['status' => 'approved']);
+                session()->flash('message', 'Artwork approved successfully.');
+                $this->closeArtworkModal();
+            }
         }
     }
 
     public function rejectArtwork()
     {
-        if ($this->selectedArtwork && $this->selectedArtwork->status === 'pending') {
-            $this->selectedArtwork->update(['status' => 'rejected']);
-            session()->flash('message', 'Artwork rejected.');
-            $this->closeArtworkModal();
+        if ($this->selectedArtwork && $this->selectedArtwork['status'] === 'pending') {
+            $artwork = Artwork::find($this->selectedArtwork['id']);
+            if ($artwork) {
+                $artwork->update(['status' => 'rejected']);
+                session()->flash('message', 'Artwork rejected.');
+                $this->closeArtworkModal();
+            }
         }
     }
 
@@ -91,7 +115,9 @@ class Dashboard extends Component
                 ];
                 break;
             case 'buyers':
-                $data = User::where('role', 'buyer')
+                $data = User::select('id', 'name', 'email', 'profile_photo_path')
+                    ->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob')
+                    ->where('role', 'buyer')
                     ->when($this->search, function ($query) {
                         $query->where('name', 'like', '%' . $this->search . '%')
                             ->orWhere('email', 'like', '%' . $this->search . '%');
@@ -99,7 +125,9 @@ class Dashboard extends Component
                     ->latest()->paginate(10);
                 break;
             case 'artists':
-                $data = User::where('role', 'artist')
+                $data = User::select('id', 'name', 'email', 'profile_photo_path')
+                    ->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob')
+                    ->where('role', 'artist')
                     ->when($this->search, function ($query) {
                         $query->where('name', 'like', '%' . $this->search . '%')
                             ->orWhere('email', 'like', '%' . $this->search . '%');
@@ -107,7 +135,9 @@ class Dashboard extends Component
                     ->latest()->paginate(10);
                 break;
             case 'artworks':
-                $data = Artwork::with('user')
+                $data = Artwork::with('user:id,name')
+                    ->select('id', 'user_id', 'title', 'price', 'status', 'image_path')
+                    ->selectRaw('image_blob IS NOT NULL as has_image_blob')
                     ->when($this->search, function ($query) {
                         $query->where('title', 'like', '%' . $this->search . '%')
                             ->orWhereHas('user', function ($q) {
@@ -117,7 +147,10 @@ class Dashboard extends Component
                     ->latest()->paginate(10);
                 break;
             case 'orders':
-                $data = Order::with(['user', 'items.artwork'])
+                $data = Order::with(['user:id,name', 'items.artwork' => function ($q) {
+                    $q->select('id', 'title', 'price', 'image_path')
+                        ->selectRaw('image_blob IS NOT NULL as has_image_blob');
+                }])
                     ->when($this->search, function ($query) {
                         $query->where('id', 'like', '%' . $this->search . '%')
                             ->orWhereHas('user', function ($q) {

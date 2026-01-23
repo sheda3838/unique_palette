@@ -14,7 +14,10 @@ class Gallery extends Component
 
     public function render()
     {
-        $query = Artwork::where('status', 'approved')->with('user');
+        $query = Artwork::select('id', 'user_id', 'title', 'price', 'description', 'status', 'image_path')
+            ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+            ->where('status', 'approved')
+            ->with('user:id,name');
 
         if ($this->search) {
             $query->where(function ($q) {

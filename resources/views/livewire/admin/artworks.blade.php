@@ -28,7 +28,7 @@
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            @if($artwork->image_path || $artwork->image_blob)
+                            @if($artwork->image_path || $artwork->image_url)
                             <div class="flex-shrink-0 h-10 w-10">
                                 <img class="h-10 w-10 rounded-full object-cover" src="{{ $artwork->image_url }}" alt="">
                             </div>
@@ -87,32 +87,32 @@
                 <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="sm:w-1/2">
-                            @if($selectedArtwork->image_path || $selectedArtwork->image_blob)
-                            <img src="{{ $selectedArtwork->image_url }}" class="rounded-lg shadow-md object-cover w-full h-96" alt="{{ $selectedArtwork->title }}">
+                            @if($selectedArtwork['image_url'])
+                            <img src="{{ $selectedArtwork['image_url'] }}" class="rounded-lg shadow-md object-cover w-full h-96" alt="{{ $selectedArtwork['title'] }}">
                             @endif
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left sm:w-1/2">
                             <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100" id="modal-title">
-                                {{ $selectedArtwork->title }}
+                                {{ $selectedArtwork['title'] }}
                             </h3>
                             <div class="mt-2">
                                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    <strong>Artist:</strong> {{ $selectedArtwork->user->name }}
+                                    <strong>Artist:</strong> {{ $selectedArtwork['user']['name'] }}
                                 </p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                    <strong>Price:</strong> ${{ $selectedArtwork->price }}
+                                    <strong>Price:</strong> ${{ $selectedArtwork['price'] }}
                                 </p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                     <strong>Status:</strong>
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        {{ $selectedArtwork->status === 'approved' ? 'bg-green-100 text-green-800' : 
-                                           ($selectedArtwork->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
-                                        {{ ucfirst($selectedArtwork->status) }}
+                                        {{ $selectedArtwork['status'] === 'approved' ? 'bg-green-100 text-green-800' : 
+                                           ($selectedArtwork['status'] === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                        {{ ucfirst($selectedArtwork['status']) }}
                                     </span>
                                 </p>
                                 <div class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                                     <p class="text-sm text-gray-600 dark:text-gray-300">
-                                        {{ $selectedArtwork->description }}
+                                        {{ $selectedArtwork['description'] }}
                                     </p>
                                 </div>
                             </div>
@@ -120,11 +120,11 @@
                     </div>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    @if($selectedArtwork->status === 'pending')
-                    <button wire:click="updateStatus({{ $selectedArtwork->id }}, 'approved')" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    @if($selectedArtwork['status'] === 'pending')
+                    <button wire:click="updateStatus({{ $selectedArtwork['id'] }}, 'approved')" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
                         Approve
                     </button>
-                    <button wire:click="updateStatus({{ $selectedArtwork->id }}, 'rejected')" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button wire:click="updateStatus({{ $selectedArtwork['id'] }}, 'rejected')" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         Reject
                     </button>
                     @endif

@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="relative h-72 overflow-hidden">
-<img src="{{ $artwork->image_url }}" alt="{{ $artwork->title }}" class="w-full h-full object-cover">
+                    <img src="{{ $artwork->image_url }}" alt="{{ $artwork->title }}" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-colors"></div>
                 </div>
 
@@ -116,11 +116,11 @@
                     <div class="lg:flex lg:items-start lg:gap-10">
                         <div class="lg:w-1/2">
                             <div class="rounded-[30px] overflow-hidden shadow-inner bg-gray-50 border border-gray-100 relative">
-<img src="{{ $selectedArtwork->image_url }}" alt="{{ $selectedArtwork->title }}" class="w-full h-auto object-cover">
+                                <img src="{{ $selectedArtwork['image_url'] }}" alt="{{ $selectedArtwork['title'] }}" class="w-full h-auto object-cover">
                                 {{-- Modal Status Badge --}}
                                 <div class="absolute top-6 right-6">
                                     <span class="px-4 py-2 text-[10px] font-black rounded-full shadow-lg uppercase tracking-widest border-2 bg-white/90 text-[#2C3E50]">
-                                        {{ $selectedArtwork->status }}
+                                        {{ $selectedArtwork['status'] }}
                                     </span>
                                 </div>
                             </div>
@@ -128,25 +128,25 @@
                         <div class="mt-6 lg:mt-0 lg:w-1/2 flex flex-col h-full">
                             <div>
                                 <h3 class="text-3xl font-black text-[#2C3E50] dark:text-white uppercase tracking-tighter leading-tight">
-                                    {{ $selectedArtwork->title }}
+                                    {{ $selectedArtwork['title'] }}
                                 </h3>
-                                <p class="text-2xl font-black text-[#1ABC9C] mt-4">LKR {{ number_format($selectedArtwork->price, 2) }}</p>
+                                <p class="text-2xl font-black text-[#1ABC9C] mt-4">LKR {{ number_format($selectedArtwork['price'], 2) }}</p>
 
                                 <div class="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
                                     <h4 class="text-xs font-black text-[#1ABC9C] uppercase tracking-[0.2em] mb-3">Masterpiece Story</h4>
                                     <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed font-medium">
-                                        {{ $selectedArtwork->description }}
+                                        {{ $selectedArtwork['description'] }}
                                     </p>
                                 </div>
                             </div>
 
                             <div class="mt-10 flex flex-col gap-4">
-                                @if($selectedArtwork->status !== 'sold')
+                                @if($selectedArtwork['status'] !== 'sold')
                                 <div class="grid grid-cols-2 gap-4">
-                                    <a href="{{ route('artist.artworks.edit', $selectedArtwork->id) }}" class="flex items-center justify-center px-6 py-4 rounded-2xl border-2 border-teal-50 text-base font-black text-[#1ABC9C] hover:bg-teal-50 transition-all uppercase tracking-wider">
+                                    <a href="{{ route('artist.artworks.edit', $selectedArtwork['id']) }}" class="flex items-center justify-center px-6 py-4 rounded-2xl border-2 border-teal-50 text-base font-black text-[#1ABC9C] hover:bg-teal-50 transition-all uppercase tracking-wider">
                                         Edit Details
                                     </a>
-                                    <button wire:click="deleteArtwork({{ $selectedArtwork->id }})" onclick="return confirm('Deeply delete this masterpiece?')" type="button" class="flex items-center justify-center px-6 py-4 rounded-2xl bg-red-50 text-red-600 border-2 border-red-100 text-base font-black hover:bg-red-600 hover:text-white transition-all uppercase tracking-wider">
+                                    <button wire:click="deleteArtwork({{ $selectedArtwork['id'] }})" onclick="return confirm('Deeply delete this masterpiece?')" type="button" class="flex items-center justify-center px-6 py-4 rounded-2xl bg-red-50 text-red-600 border-2 border-red-100 text-base font-black hover:bg-red-600 hover:text-white transition-all uppercase tracking-wider">
                                         Delete Forever
                                     </button>
                                 </div>

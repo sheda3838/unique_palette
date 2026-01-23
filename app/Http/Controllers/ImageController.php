@@ -10,7 +10,7 @@ class ImageController extends Controller
 {
     public function showArtwork($id)
     {
-        $artwork = Artwork::findOrFail($id);
+        $artwork = Artwork::select('image_blob', 'image_mime')->findOrFail($id);
 
         if (!$artwork->image_blob) {
             abort(404);
@@ -23,7 +23,7 @@ class ImageController extends Controller
 
     public function showProfile($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::select('profile_image_blob', 'profile_image_mime')->findOrFail($id);
 
         if (!$user->profile_image_blob) {
             abort(404);

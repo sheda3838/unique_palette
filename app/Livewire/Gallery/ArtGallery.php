@@ -24,7 +24,13 @@ class ArtGallery extends Component
     public function getCartProperty()
     {
         if (!Auth::check()) return collect();
-        return CartItem::where('user_id', Auth::id())->with(['artwork.user'])->get();
+        return CartItem::where('user_id', Auth::id())
+            ->with(['artwork' => function ($q) {
+                $q->select('id', 'user_id', 'title', 'price', 'image_path')
+                    ->selectRaw('image_blob IS NOT NULL as has_image_blob');
+            }, 'artwork.user' => function ($q) {
+                $q->select('id', 'name');
+            }])->get();
     }
 
     public function getCartTotalProperty()
@@ -37,8 +43,24 @@ class ArtGallery extends Component
     public function viewArtwork($id)
     {
         // Publicly viewable
-        $this->selectedArtwork = Artwork::with('user')->find($id);
-        if ($this->selectedArtwork) {
+        $artwork = Artwork::with('user:id,name')
+            ->select('id', 'user_id', 'title', 'description', 'price', 'image_path', 'status')
+            ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+            ->find($id);
+        if ($artwork) {
+            $this->selectedArtwork = [
+                'id' => $artwork->id,
+                'title' => $artwork->title,
+                'price' => $artwork->price,
+                'description' => $artwork->description,
+                'status' => $artwork->status,
+                'user_id' => $artwork->user_id,
+                'image_url' => $artwork->image_url,
+                'user' => [
+                    'id' => $artwork->user->id,
+                    'name' => $artwork->user->name,
+                ],
+            ];
             $this->showModal = true;
         }
     }
@@ -142,7 +164,10 @@ class ArtGallery extends Component
         }
 
         return view('livewire.gallery.art-gallery', [
-            'artworks' => $query->latest()->paginate(12),
+            'artworks' => $query->select('id', 'user_id', 'title', 'price', 'image_path', 'status', 'created_at')
+                ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+                ->latest()
+                ->paginate(12),
         ])->layout('layouts.public');
     }
 }

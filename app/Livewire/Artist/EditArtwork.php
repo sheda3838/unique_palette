@@ -11,7 +11,7 @@ class EditArtwork extends Component
 {
     use WithFileUploads;
 
-    public Artwork $artwork;
+    public $artworkId;
     public $title;
     public $price;
     public $description;
@@ -32,11 +32,11 @@ class EditArtwork extends Component
             abort(403, 'You are not authorized to edit this artwork or it has been sold.');
         }
 
-        $this->artwork = $artwork;
+        $this->artworkId = $artwork->id;
         $this->title = $artwork->title;
         $this->price = $artwork->price;
         $this->description = $artwork->description;
-        $this->existingImage = $artwork->image_path;
+        $this->existingImage = $artwork->image_url; // Use URL instead of path for rendering
     }
 
     public function update()
@@ -50,15 +50,18 @@ class EditArtwork extends Component
             'status' => 'pending', // Re-approval required
         ];
 
+        $artwork = Artwork::select('id', 'image_blob', 'image_mime')->findOrFail($this->artworkId);
+
         if ($this->image) {
-            // Delete old image if exists
-            if ($this->existingImage) {
-                Storage::disk('public')->delete($this->existingImage);
-            }
-            $data['image_path'] = $this->image->store('artworks', 'public');
+            $imageData = file_get_contents($this->image->getRealPath());
+            $imageMime = $this->image->getClientMimeType();
+
+            $data['image_path'] = null; // No longer using filesystem
+            $data['image_blob'] = $imageData;
+            $data['image_mime'] = $imageMime;
         }
 
-        $this->artwork->update($data);
+        $artwork->update($data);
 
         session()->flash('message', 'Artwork updated successfully and is pending approval.');
 

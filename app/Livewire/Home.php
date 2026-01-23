@@ -22,7 +22,12 @@ class Home extends Component
                     'sold' => Artwork::where('user_id', $user->id)->where('status', 'sold')->count(),
                 ];
             } elseif ($user->role === 'buyer') {
-                $artworks = Artwork::where('status', 'approved')->latest()->take(3)->get();
+                $artworks = Artwork::select('id', 'title', 'price', 'image_path')
+                    ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+                    ->where('status', 'approved')
+                    ->latest()
+                    ->take(3)
+                    ->get();
             }
         }
 

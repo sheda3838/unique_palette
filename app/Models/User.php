@@ -45,6 +45,8 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'profile_image_blob',
+        'profile_image_mime',
     ];
 
     /**
@@ -106,7 +108,16 @@ class User extends Authenticatable
 
     public function getProfileImageUrlAttribute(): string
     {
-        if ($this->profile_image_blob) {
+        $hasBlob = false;
+
+        if (array_key_exists('has_profile_image_blob', $this->attributes)) {
+            $hasBlob = (bool) $this->attributes['has_profile_image_blob'];
+        } else {
+            // fallback when blob is actually loaded
+            $hasBlob = !empty($this->profile_image_blob);
+        }
+
+        if ($hasBlob) {
             return route('profile.image', ['id' => $this->id]);
         }
 

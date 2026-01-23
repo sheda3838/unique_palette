@@ -76,24 +76,24 @@
         <x-slot name="title">
             {{ __('Order Details') }}
             @if($selectedOrder)
-            <span class="ml-2 text-sm text-gray-500">#{{ $selectedOrder->id }}</span>
+            <span class="ml-2 text-sm text-gray-500">#{{ $selectedOrder['id'] }}</span>
             @endif
         </x-slot>
 
         <x-slot name="content">
             @if($selectedOrder)
             <div class="space-y-6">
-                <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4">
+                <div class="flex-between items-center border-b border-gray-200 dark:border-gray-700 pb-4">
                     <div>
                         <p class="text-sm text-gray-500">Placed on</p>
-                        <p class="font-medium text-gray-900 dark:text-white">{{ $selectedOrder->created_at->format('F j, Y, g:i a') }}</p>
+                        <p class="font-medium text-gray-900 dark:text-white">{{ $selectedOrder['created_at'] }}</p>
                     </div>
                     <div class="text-right">
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
-                                {{ $selectedOrder->status === 'processing' ? 'bg-green-100 text-green-800' : 
-                                   ($selectedOrder->status === 'cancelled' ? 'bg-red-100 text-red-800' : 
-                                   ($selectedOrder->status === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800')) }}">
-                            {{ ucfirst($selectedOrder->status) }}
+                                {{ $selectedOrder['status'] === 'processing' ? 'bg-green-100 text-green-800' : 
+                                   ($selectedOrder['status'] === 'cancelled' ? 'bg-red-100 text-red-800' : 
+                                   ($selectedOrder['status'] === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800')) }}">
+                            {{ ucfirst($selectedOrder['status']) }}
                         </span>
                     </div>
                 </div>
@@ -101,23 +101,23 @@
                 <div>
                     <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Items</h4>
                     <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-4">
-                        @foreach($selectedOrder->items as $item)
+                        @foreach($selectedOrder['items'] as $item)
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0 h-16 w-16 rounded-md overflow-hidden bg-gray-200">
-                                @if($item->artwork)
-                                <img class="h-full w-full object-cover" src="{{ $item->artwork->image_url }}" alt="{{ $item->artwork->title }}">
+                                @if($item['artwork'])
+                                <img class="h-full w-full object-cover" src="{{ $item['artwork']['image_url'] }}" alt="{{ $item['artwork']['title'] }}">
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                    {{ $item->artwork->title ?? 'Unknown Artwork' }}
+                                    {{ $item['artwork']['title'] ?? 'Unknown Artwork' }}
                                 </p>
                                 <p class="text-xs text-gray-500">
-                                    by {{ $item->artwork->artist->name ?? 'Unknown Artist' }}
+                                    by {{ $item['artwork']['user']['name'] ?? 'Unknown Artist' }}
                                 </p>
                             </div>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                Rs. {{ number_format($item->price, 2) }}
+                                Rs. {{ number_format($item['price'], 2) }}
                             </div>
                         </div>
                         @endforeach
@@ -127,7 +127,7 @@
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div class="flex justify-between text-base font-medium text-gray-900 dark:text-white">
                         <p>Total Amount</p>
-                        <p>Rs. {{ number_format($selectedOrder->total_amount, 2) }}</p>
+                        <p>Rs. {{ number_format($selectedOrder['total_amount'], 2) }}</p>
                     </div>
                 </div>
             </div>

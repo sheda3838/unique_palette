@@ -123,44 +123,44 @@
                     <div class="lg:flex lg:items-start lg:gap-10">
                         <div class="lg:w-1/2">
                             <div class="rounded-[30px] overflow-hidden shadow-inner bg-gray-50 border border-gray-100">
-                                <img src="{{ $selectedArtwork->image_url }}" class="w-full h-auto object-cover max-h-[500px]" alt="{{ $selectedArtwork->title }}">
+                                <img src="{{ $selectedArtwork['image_url'] }}" class="w-full h-auto object-cover max-h-[500px]" alt="{{ $selectedArtwork['title'] }}">
 
                             </div>
                         </div>
                         <div class="mt-6 lg:mt-0 lg:w-1/2 flex flex-col h-full">
                             <div>
                                 <h3 class="text-3xl font-black text-[#2C3E50] dark:text-white uppercase tracking-tighter leading-tight" id="modal-title">
-                                    {{ $selectedArtwork->title }}
+                                    {{ $selectedArtwork['title'] }}
                                 </h3>
-                                <p class="text-2xl font-black text-[#1ABC9C] mt-4">LKR {{ number_format($selectedArtwork->price, 2) }}</p>
+                                <p class="text-2xl font-black text-[#1ABC9C] mt-4">LKR {{ number_format($selectedArtwork['price'], 2) }}</p>
                                 <div class="mt-4 flex items-center gap-3">
                                     <div class="h-10 w-10 bg-teal-50 rounded-full flex items-center justify-center text-[#1ABC9C] font-black">
-                                        {{ substr($selectedArtwork->user->name, 0, 1) }}
+                                        {{ substr($selectedArtwork['user']['name'], 0, 1) }}
                                     </div>
-                                    <p class="text-base text-gray-500 font-bold uppercase tracking-wide">by <span class="text-[#2C3E50] dark:text-gray-200">{{ $selectedArtwork->user->name }}</span></p>
+                                    <p class="text-base text-gray-500 font-bold uppercase tracking-wide">by <span class="text-[#2C3E50] dark:text-gray-200">{{ $selectedArtwork['user']['name'] }}</span></p>
                                 </div>
 
                                 <div class="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
                                     <h4 class="text-xs font-black text-[#1ABC9C] uppercase tracking-[0.2em] mb-3">About this piece</h4>
                                     <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed font-medium">
-                                        {{ $selectedArtwork->description }}
+                                        {{ $selectedArtwork['description'] }}
                                     </p>
                                 </div>
                             </div>
 
                             <div class="mt-10 flex flex-col gap-4">
-                                @if(auth()->check() && auth()->user()->isArtist() && auth()->id() === $selectedArtwork->user_id)
+                                @if(auth()->check() && auth()->user()->isArtist() && auth()->id() === $selectedArtwork['user_id'])
                                 <div class="grid grid-cols-2 gap-4">
                                     <button type="button" class="flex items-center justify-center px-6 py-4 rounded-2xl border-2 border-gray-200 text-base font-black text-[#2C3E50] hover:bg-gray-50 transition-all uppercase tracking-wider">
                                         Edit
                                     </button>
-                                    <button wire:click="deleteArtwork({{ $selectedArtwork->id }})" onclick="return confirm('Are you sure?')" type="button" class="flex items-center justify-center px-6 py-4 rounded-2xl bg-red-50 text-red-600 border-2 border-red-100 text-base font-black hover:bg-red-600 hover:text-white transition-all uppercase tracking-wider">
+                                    <button wire:click="deleteArtwork({{ $selectedArtwork['id'] }})" onclick="return confirm('Are you sure?')" type="button" class="flex items-center justify-center px-6 py-4 rounded-2xl bg-red-50 text-red-600 border-2 border-red-100 text-base font-black hover:bg-red-600 hover:text-white transition-all uppercase tracking-wider">
                                         Delete
                                     </button>
                                 </div>
                                 @else
-                                @if($selectedArtwork->status !== 'sold')
-                                <button wire:click="addToCart({{ $selectedArtwork->id }})" wire:loading.attr="disabled" type="button" class="w-full flex items-center justify-center px-10 py-5 bg-[#1ABC9C] text-white text-lg font-black rounded-2xl hover:bg-teal-600 transition-all shadow-xl shadow-teal-100 uppercase tracking-widest gap-4">
+                                @if($selectedArtwork['status'] !== 'sold')
+                                <button wire:click="addToCart({{ $selectedArtwork['id'] }})" wire:loading.attr="disabled" type="button" class="w-full flex items-center justify-center px-10 py-5 bg-[#1ABC9C] text-white text-lg font-black rounded-2xl hover:bg-teal-600 transition-all shadow-xl shadow-teal-100 uppercase tracking-widest gap-4">
                                     <span wire:loading.remove wire:target="addToCart">Add to Cart</span>
                                     <div wire:loading wire:target="addToCart" class="flex items-center gap-3">
                                         <div class="brush-spinner"></div>

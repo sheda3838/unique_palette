@@ -22,6 +22,16 @@ class Artwork extends Model
         'status',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'image_blob',
+        'image_mime',
+    ];
+
     protected $appends = ['image_url'];
 
     public function user()
@@ -30,37 +40,39 @@ class Artwork extends Model
     }
 
     public function getImageUrlAttribute(): string
-    {
-        if ($this->image_blob) {
-            return route('artwork.image', ['id' => $this->id]);
-        }
+{
+    // IMPORTANT: works even when image_blob is NOT selected in queries
+    $hasBlob = false;
 
-        if (!$this->image_path) {
-            return asset('assets/placeholder.png');
-        }
+    if (array_key_exists('has_image_blob', $this->attributes)) {
+        $hasBlob = (bool) $this->attributes['has_image_blob'];
+    } else {
+        // fallback when blob is actually loaded
+        $hasBlob = !empty($this->image_blob);
+    }
 
-        // Full URL (Cloudinary/S3)
-        if (Str::startsWith($this->image_path, ['http://', 'https://'])) {
-            return $this->image_path;
-        }
+    if ($hasBlob) {
+        return route('artwork.image', ['id' => $this->id]);
+    }
 
-        // If it's just a filename like "a14.jpg" -> it's in public/assets/...
-        if (!Str::contains($this->image_path, '/')) {
-            return asset('assets/artworks/' . $this->image_path);
-        }
-
-        // If it's already an assets path
-        if (Str::startsWith($this->image_path, 'assets/')) {
-            return asset($this->image_path);
-        }
-
-        // Uploaded files stored using public disk
-        $path = Str::replaceFirst('public/', '', $this->image_path);
-
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::url($path);
-        }
-
+    if (!$this->image_path) {
         return asset('assets/placeholder.png');
     }
+
+    if (Str::startsWith($this->image_path, ['http://', 'https://'])) {
+        return $this->image_path;
+    }
+
+    if (!Str::contains($this->image_path, '/')) {
+        return asset('assets/artworks/' . $this->image_path);
+    }
+
+    if (Str::startsWith($this->image_path, 'assets/')) {
+        return asset($this->image_path);
+    }
+
+    $path = Str::replaceFirst('public/', '', $this->image_path);
+    return Storage::url($path);
+}
+
 }

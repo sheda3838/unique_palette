@@ -23,8 +23,30 @@ class Cart extends Component
 
     public function updateCart()
     {
-        $items = CartItem::where('user_id', Auth::id())->with('artwork')->get();
-        $this->cartItems = $items;
+        $items = CartItem::where('user_id', Auth::id())
+            ->with(['artwork' => function ($q) {
+                $q->select('id', 'user_id', 'title', 'price', 'image_path')
+                    ->selectRaw('image_blob IS NOT NULL as has_image_blob');
+            }, 'artwork.user' => function ($q) {
+                $q->select('id', 'name');
+            }])->get();
+        $this->cartItems = $items->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'quantity' => $item->quantity,
+                'artwork_id' => $item->artwork_id,
+                'artwork' => $item->artwork ? [
+                    'id' => $item->artwork->id,
+                    'title' => $item->artwork->title,
+                    'price' => $item->artwork->price,
+                    'image_url' => $item->artwork->image_url,
+                    'user' => [
+                        'name' => $item->artwork->user->name,
+                    ],
+                ] : null,
+            ];
+        })->toArray();
+
         $this->total = $items->sum(function ($item) {
             return $item->artwork ? $item->artwork->price * $item->quantity : 0;
         });

@@ -22,13 +22,36 @@ class Checkout extends Component
             abort(403);
         }
 
-        $items = CartItem::where('user_id', Auth::id())->with('artwork')->get();
+        $items = CartItem::where('user_id', Auth::id())
+            ->with(['artwork' => function ($q) {
+                $q->select('id', 'user_id', 'title', 'price', 'status', 'image_path')
+                    ->selectRaw('image_blob IS NOT NULL as has_image_blob');
+            }, 'artwork.user' => function ($q) {
+                $q->select('id', 'name');
+            }])->get();
 
         if ($items->isEmpty()) {
             return $this->redirectRoute('gallery', navigate: true);
         }
 
-        $this->cartItems = $items;
+        $this->cartItems = $items->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'quantity' => $item->quantity,
+                'artwork_id' => $item->artwork_id,
+                'artwork' => $item->artwork ? [
+                    'id' => $item->artwork->id,
+                    'title' => $item->artwork->title,
+                    'price' => $item->artwork->price,
+                    'status' => $item->artwork->status,
+                    'image_url' => $item->artwork->image_url,
+                    'user' => [
+                        'name' => $item->artwork->user->name,
+                    ],
+                ] : null,
+            ];
+        })->toArray();
+
         $this->total = $items->sum(function ($item) {
             return $item->artwork ? $item->artwork->price * $item->quantity : 0;
         });
@@ -37,7 +60,7 @@ class Checkout extends Component
 
     public function placeOrder()
     {
-        if ($this->cartItems->isEmpty()) {
+        if (empty($this->cartItems)) {
             return $this->redirectRoute('gallery', navigate: true);
         }
 
@@ -53,10 +76,11 @@ class Checkout extends Component
 
             // Create Order Items
             foreach ($this->cartItems as $cartItem) {
-                // Check if artwork is still available
-                $artwork = $cartItem->artwork;
+                // Re-fetch artwork from DB for security and safe data
+                $artwork = Artwork::find($cartItem['artwork_id']);
+
                 if (!$artwork || $artwork->status !== 'approved') {
-                    throw new \Exception("Artwork '{$artwork->title}' is no longer available.");
+                    throw new \Exception("Artwork is no longer available.");
                 }
 
                 OrderItem::create([

@@ -3,7 +3,7 @@
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {{ __('Edit Artwork') }}: {{ $artwork->title }}
+                    {{ __('Edit Artwork') }}: {{ $title }}
                 </h2>
                 <a href="{{ route('artist.artworks') }}" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">
                     &larr; {{ __('Back to My Artworks') }}
@@ -43,7 +43,7 @@
                         @if ($existingImage)
                         <div class="shrink-0">
                             <p class="text-xs text-gray-500 mb-1">Current Image</p>
-                            <img src="{{ Storage::url($existingImage) }}" class="w-32 h-32 object-cover rounded-lg border dark:border-gray-700">
+                            <img src="{{ $existingImage }}" class="w-32 h-32 object-cover rounded-lg border dark:border-gray-700">
                         </div>
                         @endif
 

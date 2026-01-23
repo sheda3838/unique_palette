@@ -17,8 +17,24 @@ class Artworks extends Component
 
     public function viewArtwork($id)
     {
-        $this->selectedArtwork = Artwork::with('user')->find($id);
-        $this->showModal = true;
+        $artwork = Artwork::with('user:id,name')
+            ->select('id', 'user_id', 'title', 'price', 'description', 'status', 'image_path')
+            ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+            ->find($id);
+        if ($artwork) {
+            $this->selectedArtwork = [
+                'id' => $artwork->id,
+                'title' => $artwork->title,
+                'price' => $artwork->price,
+                'description' => $artwork->description,
+                'status' => $artwork->status,
+                'image_url' => $artwork->image_url,
+                'user' => [
+                    'name' => $artwork->user->name,
+                ],
+            ];
+            $this->showModal = true;
+        }
     }
 
     public function closeModal()
@@ -34,8 +50,8 @@ class Artworks extends Component
             $artwork->update(['status' => $status]);
 
             // If the modal is open and shows this artwork, refresh it
-            if ($this->selectedArtwork && $this->selectedArtwork->id === $id) {
-                $this->selectedArtwork = $artwork->fresh(['user']);
+            if ($this->selectedArtwork && $this->selectedArtwork['id'] === $id) {
+                $this->viewArtwork($id); // Re-fetch as array
             }
 
             session()->flash('message', 'Artwork status updated.');
@@ -44,7 +60,10 @@ class Artworks extends Component
 
     public function render()
     {
-        $query = Artwork::with('user')->latest();
+        $query = Artwork::with('user:id,name,email')
+            ->select('id', 'user_id', 'title', 'price', 'status', 'image_path')
+            ->selectRaw('image_blob IS NOT NULL as has_image_blob')
+            ->latest();
 
         if ($this->filter !== 'all') {
             $query->where('status', $this->filter);
