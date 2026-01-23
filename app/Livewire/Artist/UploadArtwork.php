@@ -28,8 +28,7 @@ class UploadArtwork extends Component
         'title' => 'required|string|max:255',
         'price' => 'required|numeric|min:0',
         'description' => 'required|string',
-        // IMPORTANT: keep smaller for DB BLOB inserts (Railway MySQL can reject big packets)
-        'image' => 'required|image|mimes:jpeg,png,webp|max:1024', // 1MB
+        'image' => 'required|image|mimes:jpeg,png,webp|max:5120', // 5MB
     ];
 
     public function updatedImage()
@@ -59,18 +58,15 @@ class UploadArtwork extends Component
             session()->flash('message', 'Artwork successfully uploaded and is pending approval.');
 
             return $this->redirectRoute('artist.artworks', navigate: true);
-
         } catch (\Throwable $e) {
-            // LOG SAFELY (DO NOT dump $imageData or full exception context)
-            Log::error('UploadArtwork save failed', [
+            // Log real cause for debugging
+            Log::error('UploadArtwork save failed: ' . $e->getMessage(), [
                 'user_id' => auth()->id(),
-                'msg' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'type' => get_class($e),
+                'exception' => $e,
             ]);
 
-            // show a clean message (no crash screen)
-            $this->addError('image', 'Upload failed on server. Check Railway logs (we logged the real reason). Try a smaller image (under 1MB).');
+            // show user-friendly error
+            $this->addError('image', 'Upload failed on server. Please try a smaller image or contact support if the problem persists.');
             return;
         }
     }
