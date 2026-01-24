@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Artist;
 
-use App\Models\Artwork;   // ✅ MUST exist
+use App\Models\Artwork;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -17,7 +17,7 @@ class UploadArtwork extends Component
     public $price;
     public $description;
     public $image;
-    public $debugError; // For displaying detailed errors in debug mode
+    public $debugError;
 
     public function mount()
     {
@@ -33,7 +33,7 @@ class UploadArtwork extends Component
         'title' => 'required|string|max:255',
         'price' => 'required|numeric|min:0',
         'description' => 'required|string',
-        'image' => 'required|image|mimes:jpeg,png,webp|max:5120',
+        'image' => 'required|image|mimes:jpeg,png,webp|max:10240', // Allowing up to 10MB
     ];
 
     public function updatedImage()
@@ -48,62 +48,71 @@ class UploadArtwork extends Component
 
         // Increase memory and execution time for large blob processing
         ini_set('memory_limit', '512M');
-        set_time_limit(60);
+        set_time_limit(120);
 
         try {
             $realPath = $this->image->getRealPath();
 
             if (!$realPath || !is_readable($realPath)) {
-                throw new \RuntimeException("Uploaded temp file not readable.");
+                throw new \RuntimeException("Uploaded temporary file is not readable.");
             }
 
-            $imageMime = $this->image->getMimeType() ?? 'image/jpeg';
-
-            // Read bytes safely
-            $imageData = file_get_contents($realPath);
+            // Using stream method for better memory efficiency as requested
+            $stream = fopen($realPath, 'rb');
+            if ($stream === false) {
+                throw new \RuntimeException("Failed to open file stream.");
+            }
+            $imageData = stream_get_contents($stream);
+            fclose($stream);
 
             if ($imageData === false || $imageData === '') {
                 throw new \RuntimeException("Failed to read image bytes.");
             }
 
-            // Perform creation without the blob first to keep the Eloquent model light
-            $artwork = Artwork::create([
+            $imageMime = $this->image->getMimeType() ?? 'image/jpeg';
+
+            // Create Artwork record using Blob storage
+            // Column 'image_path' is set to null as we now use 'image_blob'
+            // NOTE: This requires 'image_path' to be nullable in the DB
+            Artwork::create([
                 'user_id' => Auth::id(),
                 'title' => $this->title,
                 'price' => $this->price,
                 'description' => $this->description,
                 'image_path' => null,
-                'image_blob' => null, // Placeholder
+                'image_blob' => $imageData,
                 'image_mime' => $imageMime,
                 'status' => 'pending',
             ]);
 
-            // Now update the blob using a raw DB query to avoid loading it into memory via Eloquent
-            \Illuminate\Support\Facades\DB::table('artworks')
-                ->where('id', $artwork->id)
-                ->update(['image_blob' => $imageData]);
-
-            // CRITICAL: Unset large binary data immediately to free memory
+            // Free memory explicitly
             unset($imageData);
 
             session()->flash('message', 'Artwork successfully uploaded and is pending approval.');
 
-            // Clear the temporary file property before redirecting to avoid serialization issues
+            // Clear the temporary file to prevent Livewire from serializing it in the response
             $this->image = null;
 
             return $this->redirectRoute('artist.artworks', navigate: true);
         } catch (\Throwable $e) {
-            // Log generic error for security but keep specific message for debug
-            logger()->error('UploadArtwork failed: ' . $e->getMessage());
+            // Log safe information (NO blob or base64 data)
+            logger()->error('UploadArtwork failed', [
+                'user_id' => Auth::id(),
+                'exception' => get_class($e),
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-            $debugMessage = config('app.debug')
-                ? ($e->getMessage())
-                : 'Upload failed. Please try a smaller image.';
+            $errorMessage = config('app.debug')
+                ? $e->getMessage()
+                : 'The upload failed. Please try again with a smaller file.';
 
-            $this->debugError = $debugMessage;
+            $this->debugError = $errorMessage;
 
+            // Throw ValidationException to ensure Livewire returns valid JSON
             throw ValidationException::withMessages([
-                'image' => $debugMessage,
+                'image' => $errorMessage,
             ]);
         }
     }
