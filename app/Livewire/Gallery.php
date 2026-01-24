@@ -17,7 +17,9 @@ class Gallery extends Component
         $query = Artwork::select('id', 'user_id', 'title', 'price', 'description', 'status', 'image_path')
             ->selectRaw('image_blob IS NOT NULL as has_image_blob')
             ->where('status', 'approved')
-            ->with('user:id,name');
+            ->with(['user' => function ($q) {
+                $q->select('id', 'name')->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob');
+            }]);
 
         if ($this->search) {
             $query->where(function ($q) {

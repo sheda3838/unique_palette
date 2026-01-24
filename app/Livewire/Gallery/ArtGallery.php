@@ -43,7 +43,9 @@ class ArtGallery extends Component
     public function viewArtwork($id)
     {
         // Publicly viewable
-        $artwork = Artwork::with('user:id,name')
+        $artwork = Artwork::with(['user' => function ($q) {
+            $q->select('id', 'name')->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob');
+        }])
             ->select('id', 'user_id', 'title', 'description', 'price', 'image_path', 'status')
             ->selectRaw('image_blob IS NOT NULL as has_image_blob')
             ->find($id);
@@ -59,6 +61,7 @@ class ArtGallery extends Component
                 'user' => [
                     'id' => $artwork->user->id,
                     'name' => $artwork->user->name,
+                    'profile_image_url' => $artwork->user->profile_image_url,
                 ],
             ];
             $this->showModal = true;

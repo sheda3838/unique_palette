@@ -32,12 +32,24 @@ class ArtworkSeeder extends Seeder
         // Actually, user might prefer systematic distribution for testing. Not shuffling for now.
 
         for ($i = 1; $i <= 24; $i++) {
+            $imageName = 'a' . $i . '.jpg';
+            $imagePath = public_path('assets/artworks/' . $imageName);
+            $imageData = null;
+            $imageMime = null;
+
+            if (file_exists($imagePath)) {
+                $imageData = file_get_contents($imagePath);
+                $imageMime = 'image/jpeg';
+            }
+
             Artwork::updateOrCreate(
                 ['title' => 'Artwork ' . $i, 'user_id' => $artist->id],
                 [
                     'description' => 'A unique masterpiece captured on canvas, showcasing the beauty of artistic expression. This piece is part of the exclusive Master Artist collection.',
                     'price' => rand(150, 450),
-                    'image_path' => 'artworks/a' . $i . '.jpg',
+                    'image_path' => 'artworks/' . $imageName,
+                    'image_blob' => $imageData,
+                    'image_mime' => $imageMime,
                     'status' => $statuses[$i - 1],
                 ]
             );

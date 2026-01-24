@@ -48,7 +48,9 @@ class Dashboard extends Component
 
     public function viewArtwork($id)
     {
-        $artwork = Artwork::with('user:id,name')
+        $artwork = Artwork::with(['user' => function ($q) {
+            $q->select('id', 'name')->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob');
+        }])
             ->select('id', 'user_id', 'title', 'price', 'description', 'status', 'image_path')
             ->selectRaw('image_blob IS NOT NULL as has_image_blob')
             ->find($id);
@@ -135,7 +137,9 @@ class Dashboard extends Component
                     ->latest()->paginate(10);
                 break;
             case 'artworks':
-                $data = Artwork::with('user:id,name')
+                $data = Artwork::with(['user' => function ($q) {
+                    $q->select('id', 'name')->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob');
+                }])
                     ->select('id', 'user_id', 'title', 'price', 'status', 'image_path')
                     ->selectRaw('image_blob IS NOT NULL as has_image_blob')
                     ->when($this->search, function ($query) {
@@ -147,7 +151,9 @@ class Dashboard extends Component
                     ->latest()->paginate(10);
                 break;
             case 'orders':
-                $data = Order::with(['user:id,name', 'items.artwork' => function ($q) {
+                $data = Order::with(['user' => function ($q) {
+                    $q->select('id', 'name')->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob');
+                }, 'items.artwork' => function ($q) {
                     $q->select('id', 'title', 'price', 'image_path')
                         ->selectRaw('image_blob IS NOT NULL as has_image_blob');
                 }])

@@ -26,6 +26,15 @@ class UserSeeder extends Seeder
             ]
         );
 
+        // Seed profile images from assets for demo
+        $guest1Path = public_path('assets/guest1.jpg');
+        $guest1Data = file_exists($guest1Path) ? file_get_contents($guest1Path) : null;
+        $guest1Mime = $guest1Data ? 'image/jpeg' : null;
+
+        $guest2Path = public_path('assets/guest2.jpg');
+        $guest2Data = file_exists($guest2Path) ? file_get_contents($guest2Path) : null;
+        $guest2Mime = $guest2Data ? 'image/jpeg' : null;
+
         // Buyer
         $buyer = User::updateOrCreate(
             ['email' => 'buyer@gmail.com'],
@@ -34,6 +43,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'buyer',
                 'email_verified_at' => now(),
+                'profile_image_blob' => $guest1Data,
+                'profile_image_mime' => $guest1Mime,
             ]
         );
 
@@ -56,6 +67,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'artist',
                 'email_verified_at' => now(),
+                'profile_image_blob' => $guest2Data,
+                'profile_image_mime' => $guest2Mime,
             ]
         );
 
