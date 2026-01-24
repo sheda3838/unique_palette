@@ -59,14 +59,24 @@ class UploadArtwork extends Component
 
             return $this->redirectRoute('artist.artworks', navigate: true);
         } catch (\Throwable $e) {
-            // Log real cause for debugging
-            Log::error('UploadArtwork save failed: ' . $e->getMessage(), [
+            Log::error('UploadArtwork save failed', [
                 'user_id' => auth()->id(),
-                'exception' => $e,
+                'tmp_path' => $this->image?->getRealPath(),
+                'is_readable' => $this->image?->getRealPath()
+                    ? is_readable($this->image->getRealPath())
+                    : null,
+                'size' => $this->image?->getSize(),
+                'mime' => $this->image?->getMimeType(),
+                'original_name' => $this->image?->getClientOriginalName(),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            // show user-friendly error
-            $this->addError('image', 'Upload failed on server. Please try a smaller image or contact support if the problem persists.');
+            $this->addError(
+                'image',
+                'Upload failed on server. Please try a smaller image or contact support if the problem persists.'
+            );
+
             return;
         }
     }
