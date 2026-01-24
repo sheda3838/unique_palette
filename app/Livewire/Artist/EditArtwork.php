@@ -55,20 +55,35 @@ class EditArtwork extends Component
             'status' => 'pending', // Re-approval required
         ];
 
+        // Increase memory for blob processing
+        ini_set('memory_limit', '512M');
+
         $artwork = Artwork::select('id')->findOrFail($this->artworkId);
+        $imageData = null;
 
         if ($this->image) {
             $imageData = file_get_contents($this->image->getRealPath());
             $imageMime = $this->image->getClientMimeType();
 
             $data['image_path'] = null; // No longer using filesystem
-            $data['image_blob'] = $imageData;
+            $data['image_blob'] = null; // Update via raw query next
             $data['image_mime'] = $imageMime;
         }
 
         $artwork->update($data);
 
+        if ($imageData) {
+            \Illuminate\Support\Facades\DB::table('artworks')
+                ->where('id', $artwork->id)
+                ->update(['image_blob' => $imageData]);
+
+            unset($imageData);
+        }
+
         session()->flash('message', 'Artwork updated successfully and is pending approval.');
+
+        // Clear file property to avoid serialization issues
+        $this->image = null;
 
         return $this->redirectRoute('artist.artworks', navigate: true);
     }

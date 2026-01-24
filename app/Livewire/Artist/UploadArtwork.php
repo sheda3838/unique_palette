@@ -46,63 +46,62 @@ class UploadArtwork extends Component
         $this->validate();
         $this->debugError = null;
 
+        // Increase memory and execution time for large blob processing
+        ini_set('memory_limit', '512M');
+        set_time_limit(60);
+
         try {
             $realPath = $this->image->getRealPath();
 
             if (!$realPath || !is_readable($realPath)) {
-                throw new \RuntimeException("Uploaded temp file not readable. realPath=" . ($realPath ?? 'null'));
-            }
-
-            // Read bytes safely using a stream to avoid memory spikes
-            $stream = fopen($realPath, 'rb');
-            if ($stream === false) {
-                throw new \RuntimeException("Failed to open uploaded temp file stream. realPath=" . $realPath);
-            }
-
-            $imageData = stream_get_contents($stream);
-            fclose($stream);
-
-            if ($imageData === false || $imageData === '') {
-                throw new \RuntimeException("Failed to read uploaded image bytes. realPath=" . $realPath);
+                throw new \RuntimeException("Uploaded temp file not readable.");
             }
 
             $imageMime = $this->image->getMimeType() ?? 'image/jpeg';
 
-            Artwork::create([
+            // Read bytes safely
+            $imageData = file_get_contents($realPath);
+
+            if ($imageData === false || $imageData === '') {
+                throw new \RuntimeException("Failed to read image bytes.");
+            }
+
+            // Perform creation without the blob first to keep the Eloquent model light
+            $artwork = Artwork::create([
                 'user_id' => Auth::id(),
                 'title' => $this->title,
                 'price' => $this->price,
                 'description' => $this->description,
-                'image_path' => null, // Explicitly null for blob storage
-                'image_blob' => $imageData,
+                'image_path' => null,
+                'image_blob' => null, // Placeholder
                 'image_mime' => $imageMime,
                 'status' => 'pending',
             ]);
 
+            // Now update the blob using a raw DB query to avoid loading it into memory via Eloquent
+            \Illuminate\Support\Facades\DB::table('artworks')
+                ->where('id', $artwork->id)
+                ->update(['image_blob' => $imageData]);
+
+            // CRITICAL: Unset large binary data immediately to free memory
+            unset($imageData);
+
             session()->flash('message', 'Artwork successfully uploaded and is pending approval.');
+
+            // Clear the temporary file property before redirecting to avoid serialization issues
+            $this->image = null;
 
             return $this->redirectRoute('artist.artworks', navigate: true);
         } catch (\Throwable $e) {
-            // Log safe details for debugging (never log the raw binary blob!)
-            logger()->error('UploadArtwork failed', [
-                'user_id' => Auth::id(),
-                'tmp_path' => $this->image?->getRealPath(),
-                'size' => $this->image?->getSize(),
-                'mime' => $this->image?->getMimeType(),
-                'original_name' => $this->image?->getClientOriginalName(),
-                'exception' => get_class($e),
-                'message' => $e->getMessage(),
-            ]);
+            // Log generic error for security but keep specific message for debug
+            logger()->error('UploadArtwork failed: ' . $e->getMessage());
 
             $debugMessage = config('app.debug')
-                ? (get_class($e) . ': ' . $e->getMessage())
-                : 'Upload failed on server. Please try a smaller image or try again later.';
+                ? ($e->getMessage())
+                : 'Upload failed. Please try a smaller image.';
 
-            // Store for the special debug box in Blade
             $this->debugError = $debugMessage;
 
-            // Throwing ValidationException ensures Livewire returns a valid JSON 422 response
-            // and the error message appears through the standard <x-input-error for="image" />
             throw ValidationException::withMessages([
                 'image' => $debugMessage,
             ]);

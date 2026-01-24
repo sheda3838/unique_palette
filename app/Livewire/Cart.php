@@ -16,7 +16,10 @@ class Cart extends Component
 
     public function mount()
     {
-        if (!Auth::user() || !Auth::user()->isBuyer()) {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        if (!$user || !$user->isBuyer()) {
             abort(403);
         }
         $this->updateCart();
