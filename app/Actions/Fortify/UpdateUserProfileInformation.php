@@ -24,13 +24,19 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         ])->validateWithBag('updateProfileInformation');
 
         if (isset($input['photo'])) {
-            $imageData = file_get_contents($input['photo']->getRealPath());
+            $stream = fopen($input['photo']->getRealPath(), 'rb');
+            $imageData = stream_get_contents($stream);
+            fclose($stream);
+
             $imageMime = $input['photo']->getMimeType();
 
             $user->forceFill([
                 'profile_image_blob' => $imageData,
                 'profile_image_mime' => $imageMime,
+                'profile_photo_path' => null, // Clear path to ensure blob route is used
             ])->save();
+
+            unset($imageData);
         }
 
         if (

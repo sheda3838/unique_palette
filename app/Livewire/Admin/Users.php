@@ -16,7 +16,9 @@ class Users extends Component
     #[Layout('layouts.app')]
     public function render()
     {
-        $query = User::latest();
+        $query = User::select('id', 'name', 'email', 'role', 'profile_photo_path', 'created_at')
+            ->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob')
+            ->latest();
 
         if ($this->search) {
             $query->where('name', 'like', '%' . $this->search . '%')

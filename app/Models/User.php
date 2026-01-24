@@ -57,6 +57,7 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
         'profile_image_url',
+        'has_profile_image_blob',
     ];
 
     /**
@@ -108,19 +109,43 @@ class User extends Authenticatable
 
     public function getProfileImageUrlAttribute(): string
     {
-        $hasBlob = false;
+        if ($this->has_profile_image_blob) {
+            return route('user.profile-image', ['id' => $this->id]);
+        }
 
+        if ($this->profile_photo_path) {
+            if (str_starts_with($this->profile_photo_path, 'http')) {
+                return $this->profile_photo_path;
+            }
+            return asset('storage/' . $this->profile_photo_path);
+        }
+
+        return asset('assets/default-avatar.png');
+    }
+
+    public function getHasProfileImageBlobAttribute(): bool
+    {
         if (array_key_exists('has_profile_image_blob', $this->attributes)) {
-            $hasBlob = (bool) $this->attributes['has_profile_image_blob'];
-        } else {
-            // fallback when blob is actually loaded
-            $hasBlob = !empty($this->profile_image_blob);
+            return (bool) $this->attributes['has_profile_image_blob'];
+        }
+        return !empty($this->profile_image_blob);
+    }
+
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->getProfileImageUrlAttribute();
+    }
+
+    public function deleteProfilePhoto()
+    {
+        if ($this->profile_photo_path) {
+            \Illuminate\Support\Facades\Storage::disk($this->profilePhotoDisk())->delete($this->profile_photo_path);
         }
 
-        if ($hasBlob) {
-            return route('profile.image', ['id' => $this->id]);
-        }
-
-        return $this->profile_photo_url;
+        $this->forceFill([
+            'profile_photo_path' => null,
+            'profile_image_blob' => null,
+            'profile_image_mime' => null,
+        ])->save();
     }
 }
