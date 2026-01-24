@@ -3,6 +3,7 @@
 namespace App\Livewire\Artist;
 
 use App\Models\Artwork;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -14,9 +15,7 @@ class UploadArtwork extends Component
     public $price;
     public $description;
     public $image;
-
-    // TEMP debug message for UI (only shows when APP_DEBUG=true)
-    public $debugError = null;
+    public $debugError; // For displaying detailed errors in debug mode
 
     public function mount()
     {
@@ -35,7 +34,6 @@ class UploadArtwork extends Component
     public function updatedImage()
     {
         $this->validateOnly('image');
-        $this->debugError = null;
     }
 
     public function save()
@@ -50,6 +48,7 @@ class UploadArtwork extends Component
                 throw new \RuntimeException("Uploaded temp file not readable. realPath=" . ($realPath ?? 'null'));
             }
 
+            // Read bytes safely using a stream to avoid memory spikes
             $stream = fopen($realPath, 'rb');
             if ($stream === false) {
                 throw new \RuntimeException("Failed to open uploaded temp file stream. realPath=" . $realPath);
@@ -69,7 +68,7 @@ class UploadArtwork extends Component
                 'title' => $this->title,
                 'price' => $this->price,
                 'description' => $this->description,
-                'image_path' => null,
+                'image_path' => null, // Explicitly null for blob storage
                 'image_blob' => $imageData,
                 'image_mime' => $imageMime,
                 'status' => 'pending',
@@ -79,12 +78,10 @@ class UploadArtwork extends Component
 
             return $this->redirectRoute('artist.artworks', navigate: true);
         } catch (\Throwable $e) {
-            logger()->error('UploadArtwork save failed', [
+            // Log safe details for debugging (never log the raw binary blob!)
+            logger()->error('UploadArtwork failed', [
                 'user_id' => auth()->id(),
                 'tmp_path' => $this->image?->getRealPath(),
-                'is_readable' => $this->image?->getRealPath()
-                    ? is_readable($this->image->getRealPath())
-                    : null,
                 'size' => $this->image?->getSize(),
                 'mime' => $this->image?->getMimeType(),
                 'original_name' => $this->image?->getClientOriginalName(),
@@ -92,14 +89,18 @@ class UploadArtwork extends Component
                 'message' => $e->getMessage(),
             ]);
 
-            if (config('app.debug')) {
-                $this->debugError = get_class($e) . ': ' . $e->getMessage();
-            }
+            $debugMessage = config('app.debug')
+                ? (get_class($e) . ': ' . $e->getMessage())
+                : 'Upload failed on server. Please try a smaller image or try again later.';
 
-            $this->addError('image', 'Upload failed on server. Please try again.');
+            // Store for the special debug box in Blade
+            $this->debugError = $debugMessage;
 
-            // ✅ IMPORTANT: just stop here (do NOT return render/view)
-            return;
+            // Throwing ValidationException ensures Livewire returns a valid JSON 422 response
+            // and the error message appears through the standard <x-input-error for="image" />
+            throw ValidationException::withMessages([
+                'image' => $debugMessage,
+            ]);
         }
     }
 
