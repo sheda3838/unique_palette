@@ -14,7 +14,6 @@ class UploadArtwork extends Component
     public $price;
     public $description;
     public $image;
-    public $successMessage = false;
 
     // TEMP debug message for UI (only shows when APP_DEBUG=true)
     public $debugError = null;
@@ -30,13 +29,13 @@ class UploadArtwork extends Component
         'title' => 'required|string|max:255',
         'price' => 'required|numeric|min:0',
         'description' => 'required|string',
-        'image' => 'required|image|mimes:jpeg,png,webp|max:5120', // 5MB
+        'image' => 'required|image|mimes:jpeg,png,webp|max:5120',
     ];
 
     public function updatedImage()
     {
         $this->validateOnly('image');
-        $this->debugError = null; // reset when user picks a new file
+        $this->debugError = null;
     }
 
     public function save()
@@ -45,7 +44,6 @@ class UploadArtwork extends Component
         $this->debugError = null;
 
         try {
-            // More reliable read (helps on some container environments)
             $realPath = $this->image->getRealPath();
 
             if (!$realPath || !is_readable($realPath)) {
@@ -81,31 +79,28 @@ class UploadArtwork extends Component
 
             return $this->redirectRoute('artist.artworks', navigate: true);
         } catch (\Throwable $e) {
-    // Log real cause (safe — no blob/base64 logged)
-    logger()->error('UploadArtwork save failed', [
-        'user_id' => auth()->id(),
-        'tmp_path' => $this->image?->getRealPath(),
-        'is_readable' => $this->image?->getRealPath()
-            ? is_readable($this->image->getRealPath())
-            : null,
-        'size' => $this->image?->getSize(),
-        'mime' => $this->image?->getMimeType(),
-        'original_name' => $this->image?->getClientOriginalName(),
-        'exception' => get_class($e),
-        'message' => $e->getMessage(),
-    ]);
+            logger()->error('UploadArtwork save failed', [
+                'user_id' => auth()->id(),
+                'tmp_path' => $this->image?->getRealPath(),
+                'is_readable' => $this->image?->getRealPath()
+                    ? is_readable($this->image->getRealPath())
+                    : null,
+                'size' => $this->image?->getSize(),
+                'mime' => $this->image?->getMimeType(),
+                'original_name' => $this->image?->getClientOriginalName(),
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
 
-    // TEMP: show safe message in UI only when APP_DEBUG=true
-    if (config('app.debug')) {
-        $this->debugError = get_class($e) . ': ' . $e->getMessage();
-    }
+            if (config('app.debug')) {
+                $this->debugError = get_class($e) . ': ' . $e->getMessage();
+            }
 
-    $this->addError('image', 'Upload failed on server. Please try again.');
+            $this->addError('image', 'Upload failed on server. Please try again.');
 
-    // 🔥 CRITICAL: DO NOT return null / nothing
-    // Let Livewire finish normally
-    return $this->render();
-}
+            // ✅ IMPORTANT: just stop here (do NOT return render/view)
+            return;
+        }
     }
 
     public function render()
