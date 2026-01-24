@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Artwork;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -58,6 +59,7 @@ class Artworks extends Component
         }
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $query = Artwork::with('user:id,name,email')
@@ -71,6 +73,6 @@ class Artworks extends Component
 
         return view('livewire.admin.artworks', [
             'artworks' => $query->paginate(10),
-        ])->layout('layouts.app');
+        ]);
     }
 }

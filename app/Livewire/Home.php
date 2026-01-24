@@ -3,11 +3,13 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Artwork;
 
 class Home extends Component
 {
+    #[Layout('layouts.public')]
     public function render()
     {
         $stats = null;
@@ -31,11 +33,9 @@ class Home extends Component
             }
         }
 
-        // Using inline comments for Assessment Alignment (Requirement 6)
-        // This component replaces the traditional Blade-based home page to enable SPA-like navigation via wire:navigate
         return view('livewire.home', [
             'stats' => $stats,
             'buyerArtworks' => $artworks
-        ])->layout('layouts.public');
+        ]);
     }
 }

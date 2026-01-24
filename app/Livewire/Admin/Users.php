@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\User;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,6 +13,7 @@ class Users extends Component
 
     public $search = '';
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $query = User::latest();
@@ -23,6 +25,6 @@ class Users extends Component
 
         return view('livewire.admin.users', [
             'users' => $query->paginate(10),
-        ])->layout('layouts.app');
+        ]);
     }
 }

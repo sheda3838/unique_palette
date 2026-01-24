@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 
 class Onboarding extends Component
@@ -120,10 +121,11 @@ class Onboarding extends Component
         return $this->redirect('/', navigate: true);
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         // Inline comments for Assessment Alignment (Requirement 6)
         // This coordinated multi-step Livewire component handles the entire onboarding flow without page refreshes
-        return view('livewire.onboarding')->layout('layouts.app');
+        return view('livewire.onboarding');
     }
 }

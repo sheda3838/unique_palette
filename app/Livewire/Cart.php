@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class Cart extends Component
@@ -59,8 +60,9 @@ class Cart extends Component
         $this->dispatch('cartUpdated');
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
-        return view('livewire.cart')->layout('layouts.app');
+        return view('livewire.cart');
     }
 }

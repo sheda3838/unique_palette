@@ -5,6 +5,7 @@ namespace App\Livewire\Gallery;
 use App\Models\Artwork;
 use App\Models\CartItem;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
@@ -141,6 +142,7 @@ class ArtGallery extends Component
         }
     }
 
+    #[Layout('layouts.public')]
     public function render()
     {
         $user = Auth::user();
@@ -171,6 +173,6 @@ class ArtGallery extends Component
                 ->selectRaw('image_blob IS NOT NULL as has_image_blob')
                 ->latest()
                 ->paginate(12),
-        ])->layout('layouts.public');
+        ]);
     }
 }

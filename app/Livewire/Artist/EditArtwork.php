@@ -5,6 +5,8 @@ namespace App\Livewire\Artist;
 use App\Models\Artwork;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class EditArtwork extends Component
@@ -27,8 +29,11 @@ class EditArtwork extends Component
 
     public function mount(Artwork $artwork)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // Security check: ensure user is an artist, the artwork belongs to the user and is NOT sold
-        if (!auth()->user()->isArtist() || $artwork->user_id !== auth()->id() || $artwork->status === 'sold') {
+        if (!$user || !$user->isArtist() || $artwork->user_id !== $user->id || $artwork->status === 'sold') {
             abort(403, 'You are not authorized to edit this artwork or it has been sold.');
         }
 
@@ -68,8 +73,9 @@ class EditArtwork extends Component
         return $this->redirectRoute('artist.artworks', navigate: true);
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
-        return view('livewire.artist.edit-artwork')->layout('layouts.app');
+        return view('livewire.artist.edit-artwork');
     }
 }

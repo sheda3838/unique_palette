@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Artist;
 
-use App\Models\Artwork;
+use App\Models\Artwork;   // ✅ MUST exist
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
 
 class UploadArtwork extends Component
 {
@@ -19,7 +21,10 @@ class UploadArtwork extends Component
 
     public function mount()
     {
-        if (!auth()->user() || !auth()->user()->isArtist()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user || !$user->isArtist()) {
             abort(403);
         }
     }
@@ -64,7 +69,7 @@ class UploadArtwork extends Component
             $imageMime = $this->image->getMimeType() ?? 'image/jpeg';
 
             Artwork::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'title' => $this->title,
                 'price' => $this->price,
                 'description' => $this->description,
@@ -80,7 +85,7 @@ class UploadArtwork extends Component
         } catch (\Throwable $e) {
             // Log safe details for debugging (never log the raw binary blob!)
             logger()->error('UploadArtwork failed', [
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'tmp_path' => $this->image?->getRealPath(),
                 'size' => $this->image?->getSize(),
                 'mime' => $this->image?->getMimeType(),
@@ -104,8 +109,9 @@ class UploadArtwork extends Component
         }
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
-        return view('livewire.artist.upload-artwork')->layout('layouts.app');
+        return view('livewire.artist.upload-artwork');
     }
 }

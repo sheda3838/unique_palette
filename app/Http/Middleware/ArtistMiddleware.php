@@ -15,7 +15,10 @@ class ArtistMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->isArtist()) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        if ($user && $user->isArtist()) {
             return $next($request);
         }
 

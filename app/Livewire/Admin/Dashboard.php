@@ -7,6 +7,8 @@ use App\Models\Artwork;
 use App\Models\Order;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 
 class Dashboard extends Component
 {
@@ -19,7 +21,10 @@ class Dashboard extends Component
 
     public function mount()
     {
-        if (!auth()->user() || !auth()->user()->isAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user || !$user->isAdmin()) {
             abort(403);
         }
 
@@ -102,6 +107,7 @@ class Dashboard extends Component
         }
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $data = [];
@@ -169,6 +175,6 @@ class Dashboard extends Component
 
         return view('livewire.admin.dashboard', [
             'items' => $data
-        ])->layout('layouts.app');
+        ]);
     }
 }

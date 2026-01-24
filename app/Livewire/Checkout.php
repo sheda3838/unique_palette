@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Artwork;
 use App\Models\CartItem;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,10 @@ class Checkout extends Component
 
     public function mount()
     {
-        if (!Auth::user() || !Auth::user()->isBuyer()) {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        if (!$user || !$user->isBuyer()) {
             abort(403);
         }
 
@@ -104,8 +108,9 @@ class Checkout extends Component
         }
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
-        return view('livewire.checkout')->layout('layouts.app');
+        return view('livewire.checkout');
     }
 }

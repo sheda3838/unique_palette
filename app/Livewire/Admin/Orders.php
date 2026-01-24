@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Order;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -21,6 +22,7 @@ class Orders extends Component
         }
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $query = Order::with('user', 'items.artwork')->latest();
@@ -31,6 +33,6 @@ class Orders extends Component
 
         return view('livewire.admin.orders', [
             'orders' => $query->paginate(10),
-        ])->layout('layouts.app');
+        ]);
     }
 }
