@@ -148,4 +148,15 @@ class User extends Authenticatable implements MustVerifyEmail
             'profile_image_mime' => null,
         ])->save();
     }
+
+    /**
+     * Send the email verification notification.
+     * Overridden to use QueuedVerifyEmail for better performance and to avoid SMTP timeouts.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\QueuedVerifyEmail);
+    }
 }
