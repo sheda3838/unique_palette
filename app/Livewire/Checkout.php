@@ -99,8 +99,8 @@ class Checkout extends Component
             // Clear Cart
             CartItem::where('user_id', Auth::id())->delete();
 
-            // Redirect to Payment
-            return redirect()->route('payment', ['order' => $order->id]);
+            // Redirect to Stripe Checkout
+            return redirect()->route('checkout.stripe', ['order' => $order->id]);
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Order failed: ' . $e->getMessage());

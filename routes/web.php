@@ -11,6 +11,7 @@ use App\Livewire\Artist\EditArtwork;
 use App\Livewire\Buyer\Orders as BuyerOrders;
 use App\Livewire\Cart;
 use App\Livewire\Checkout;
+use App\Http\Controllers\StripeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,7 +98,9 @@ Route::middleware([
         Route::get('/checkout', Checkout::class)->name('checkout');
         Route::get('/buyer/orders', BuyerOrders::class)->name('buyer.orders');
 
-        // Payment Flow
+        // Stripe Payment Flow
+        Route::get('/checkout/stripe/{order}', [StripeController::class, 'checkout'])->name('checkout.stripe');
+
         Route::get('/payment/success', function (\Illuminate\Http\Request $request) {
             $order_id = $request->get('order_id');
             if ($order_id) {
@@ -106,6 +109,8 @@ Route::middleware([
                     ->first();
 
                 if ($order && $order->status === 'pending') {
+                    // We update the status here for immediate UI feedback, 
+                    // but the Webhook is the source of truth for final payment confirmation.
                     $order->update(['status' => 'processing']);
 
                     foreach ($order->items as $item) {
@@ -125,31 +130,24 @@ Route::middleware([
                     ->where('user_id', Auth::id())
                     ->first();
                 if ($order && $order->status === 'pending') {
-                    $order->update(['status' => 'cancelled']);
+                    // Optional: keep it pending so they can try again, or mark as cancelled.
+                    // User requested to keep order unpaid.
                 }
             }
             return view('payment.cancel', ['order_id' => $order_id]);
         })->name('payment.cancel');
-
-        Route::get('/payment/{order}', function (\App\Models\Order $order) {
-            $merchant_id = config('services.payhere.merchant_id');
-            $merchant_secret = config('services.payhere.secret');
-            $amount = number_format($order->total_amount, 2, '.', '');
-            $currency = 'LKR';
-
-            $hash = strtoupper(md5($merchant_id . $order->id . $amount . $currency . strtoupper(md5($merchant_secret))));
-
-            return view('payment', [
-                'order' => $order,
-                'hash' => $hash,
-                'merchant_id' => $merchant_id,
-                'amount' => $amount
-            ]);
-        })->name('payment');
     });
 
-    // Public notify endpoint (webhook)
-    Route::post('/payment/notify', function () {
-        return response('OK', 200);
-    })->name('payment.notify')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    // Stripe Webhook (Public)
+    Route::post('/webhooks/stripe', [StripeController::class, 'webhook'])
+        ->name('stripe.webhook')
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+    // Legacy PayHere routes (can be removed later)
+    Route::middleware(['auth:sanctum', 'buyer'])->group(function () {
+        Route::get('/payment/{order}', function (\App\Models\Order $order) {
+            // Redirect to Stripe instead of showing PayHere form
+            return redirect()->route('checkout.stripe', ['order' => $order->id]);
+        })->name('payment');
+    });
 });
