@@ -81,28 +81,31 @@ class UploadArtwork extends Component
 
             return $this->redirectRoute('artist.artworks', navigate: true);
         } catch (\Throwable $e) {
-            // Log real cause (safe — no blob/base64 logged)
-            logger()->error('UploadArtwork save failed', [
-                'user_id' => auth()->id(),
-                'tmp_path' => $this->image?->getRealPath(),
-                'is_readable' => $this->image?->getRealPath()
-                    ? is_readable($this->image->getRealPath())
-                    : null,
-                'size' => $this->image?->getSize(),
-                'mime' => $this->image?->getMimeType(),
-                'original_name' => $this->image?->getClientOriginalName(),
-                'exception' => get_class($e),
-                'message' => $e->getMessage(),
-            ]);
+    // Log real cause (safe — no blob/base64 logged)
+    logger()->error('UploadArtwork save failed', [
+        'user_id' => auth()->id(),
+        'tmp_path' => $this->image?->getRealPath(),
+        'is_readable' => $this->image?->getRealPath()
+            ? is_readable($this->image->getRealPath())
+            : null,
+        'size' => $this->image?->getSize(),
+        'mime' => $this->image?->getMimeType(),
+        'original_name' => $this->image?->getClientOriginalName(),
+        'exception' => get_class($e),
+        'message' => $e->getMessage(),
+    ]);
 
-            // TEMP: show safe message in UI only when APP_DEBUG=true
-            if (config('app.debug')) {
-                $this->debugError = get_class($e) . ': ' . $e->getMessage();
-            }
+    // TEMP: show safe message in UI only when APP_DEBUG=true
+    if (config('app.debug')) {
+        $this->debugError = get_class($e) . ': ' . $e->getMessage();
+    }
 
-            $this->addError('image', 'Upload failed on server. Please try again.');
-            return;
-        }
+    $this->addError('image', 'Upload failed on server. Please try again.');
+
+    // 🔥 CRITICAL: DO NOT return null / nothing
+    // Let Livewire finish normally
+    return $this->render();
+}
     }
 
     public function render()
