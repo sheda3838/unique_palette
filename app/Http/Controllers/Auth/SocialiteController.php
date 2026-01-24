@@ -28,6 +28,10 @@ class SocialiteController extends Controller
                 if (! $user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
+                // Mark as verified if not already
+                if (! $user->email_verified_at) {
+                    $user->update(['email_verified_at' => now()]);
+                }
             } else {
                 // Create new user
                 $user = User::create([
@@ -35,6 +39,7 @@ class SocialiteController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'password' => Hash::make(Str::random(24)), // Random password
+                    'email_verified_at' => now(),
                 ]);
             }
 

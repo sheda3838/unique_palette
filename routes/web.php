@@ -49,6 +49,7 @@ Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteControl
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
+    'verified',
     \App\Http\Middleware\CheckOnboarding::class,
 ])->group(function () {
 
@@ -137,17 +138,14 @@ Route::middleware([
             return view('payment.cancel', ['order_id' => $order_id]);
         })->name('payment.cancel');
     });
-
-    // Stripe Webhook (Public)
-    Route::post('/webhooks/stripe', [StripeController::class, 'webhook'])
-        ->name('stripe.webhook')
-        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
-
-    // Legacy PayHere routes (can be removed later)
-    Route::middleware(['auth:sanctum', 'buyer'])->group(function () {
-        Route::get('/payment/{order}', function (\App\Models\Order $order) {
-            // Redirect to Stripe instead of showing PayHere form
-            return redirect()->route('checkout.stripe', ['order' => $order->id]);
-        })->name('payment');
-    });
 });
+
+// Stripe Webhook (Public) - Outside auth groups
+Route::post('/webhooks/stripe', [StripeController::class, 'webhook'])
+    ->name('stripe.webhook')
+    ->withoutMiddleware([
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+        'auth:sanctum',
+        'verified',
+        \App\Http\Middleware\CheckOnboarding::class,
+    ]);
