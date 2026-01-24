@@ -2,10 +2,9 @@
 
 namespace App\Livewire\Artist;
 
+use App\Models\Artwork;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use App\Models\Artwork;
-use Illuminate\Support\Facades\Log;
 
 class UploadArtwork extends Component
 {
@@ -16,6 +15,9 @@ class UploadArtwork extends Component
     public $description;
     public $image;
     public $successMessage = false;
+
+    // TEMP debug message for UI (only shows when APP_DEBUG=true)
+    public $debugError = null;
 
     public function mount()
     {
@@ -34,15 +36,35 @@ class UploadArtwork extends Component
     public function updatedImage()
     {
         $this->validateOnly('image');
+        $this->debugError = null; // reset when user picks a new file
     }
 
     public function save()
     {
         $this->validate();
+        $this->debugError = null;
 
         try {
-            $imageData = file_get_contents($this->image->getRealPath());
-            $imageMime = $this->image->getMimeType();
+            // More reliable read (helps on some container environments)
+            $realPath = $this->image->getRealPath();
+
+            if (!$realPath || !is_readable($realPath)) {
+                throw new \RuntimeException("Uploaded temp file not readable. realPath=" . ($realPath ?? 'null'));
+            }
+
+            $stream = fopen($realPath, 'rb');
+            if ($stream === false) {
+                throw new \RuntimeException("Failed to open uploaded temp file stream. realPath=" . $realPath);
+            }
+
+            $imageData = stream_get_contents($stream);
+            fclose($stream);
+
+            if ($imageData === false || $imageData === '') {
+                throw new \RuntimeException("Failed to read uploaded image bytes. realPath=" . $realPath);
+            }
+
+            $imageMime = $this->image->getMimeType() ?? 'image/jpeg';
 
             Artwork::create([
                 'user_id' => auth()->id(),
@@ -59,6 +81,7 @@ class UploadArtwork extends Component
 
             return $this->redirectRoute('artist.artworks', navigate: true);
         } catch (\Throwable $e) {
+            // Log real cause (safe — no blob/base64 logged)
             logger()->error('UploadArtwork save failed', [
                 'user_id' => auth()->id(),
                 'tmp_path' => $this->image?->getRealPath(),
@@ -68,8 +91,14 @@ class UploadArtwork extends Component
                 'size' => $this->image?->getSize(),
                 'mime' => $this->image?->getMimeType(),
                 'original_name' => $this->image?->getClientOriginalName(),
+                'exception' => get_class($e),
                 'message' => $e->getMessage(),
             ]);
+
+            // TEMP: show safe message in UI only when APP_DEBUG=true
+            if (config('app.debug')) {
+                $this->debugError = get_class($e) . ': ' . $e->getMessage();
+            }
 
             $this->addError('image', 'Upload failed on server. Please try again.');
             return;
