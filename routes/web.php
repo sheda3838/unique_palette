@@ -27,6 +27,7 @@ use App\Http\Controllers\StripeController;
 Route::get('/', \App\Livewire\Home::class)->name('welcome');
 Route::get('/gallery', ArtGallery::class)->name('gallery');
 Route::get('/about-us', \App\Livewire\AboutUs::class)->name('about-us');
+Route::get('/debug/mail-test', [\App\Http\Controllers\MailDebugController::class, 'test']);
 
 // Image serving routes (BLOB)
 Route::get('/artwork-image/{id}', [\App\Http\Controllers\ImageController::class, 'showArtwork'])->name('artwork.image');

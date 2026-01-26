@@ -56,3 +56,12 @@ Ensure the following extensions are active in your Railway environment:
 
 - Run `php artisan migrate` in the Railway terminal to ensure all blob columns exist.
 - Run `php artisan db:seed --class=ArtworkSeeder` to test storing blobs from existing local files.
+
+## 8. Email Verification Debugging
+
+If verify emails are not being sent:
+
+1.  **Check Env Vars**: Ensure `MAIL_MAILER=smtp` is set in Railway. If missing, it defaults to `log`.
+2.  **Queue Connection**: We are using `QueuedVerifyEmail`. Set `QUEUE_CONNECTION=sync` to send emails instantly without a worker.
+3.  **Clear Config Cache**: If you see old values, run `php artisan config:clear` in the Railway terminal.
+4.  **Smoke Test**: Visit `https://your-app.up.railway.app/debug/mail-test?token=debug123&email=your@email.com` to force a synchronous test email.
