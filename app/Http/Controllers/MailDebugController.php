@@ -11,9 +11,10 @@ class MailDebugController extends Controller
 {
     public function test(Request $request)
     {
-        // Security check: Only allow if a specific token is provided in the URL
-        // In production, the user should set DEBUG_TOKEN in Railway variables.
-        // If not set, it defaults to 'debug123' for this first test.
+        // Increase execution time so we don't hit the 30s limit before SMTP times out
+        set_time_limit(120);
+
+        // Security check
         $token = env('DEBUG_TOKEN', 'debug123');
         if ($request->query('token') !== $token) {
             return response()->json(['error' => 'Unauthorized. Provide ?token=' . $token], 403);
