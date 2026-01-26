@@ -58,25 +58,24 @@ class EditArtwork extends Component
         // Increase memory for blob processing
         ini_set('memory_limit', '512M');
 
-        $artwork = Artwork::select('id')->findOrFail($this->artworkId);
+        $artwork = Artwork::select('id', 'updated_at')->findOrFail($this->artworkId);
         $imageData = null;
 
         if ($this->image) {
             $imageData = file_get_contents($this->image->getRealPath());
             $imageMime = $this->image->getClientMimeType();
 
-            $data['image_path'] = null; // No longer using filesystem
-            $data['image_blob'] = null; // Update via raw query next
+            $data['image_path'] = null;
+            $data['image_blob'] = $imageData; // Put it in data directly for consistency
             $data['image_mime'] = $imageMime;
         }
 
         $artwork->update($data);
 
+        // If for some reason the above didn't update the blob (though it should), 
+        // the timestamp is already refreshed by Eloquent update.
+        // We also unset imageData to free memory.
         if ($imageData) {
-            \Illuminate\Support\Facades\DB::table('artworks')
-                ->where('id', $artwork->id)
-                ->update(['image_blob' => $imageData]);
-
             unset($imageData);
         }
 

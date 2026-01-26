@@ -18,7 +18,7 @@ class ImageController extends Controller
 
         return response($artwork->image_blob)
             ->header('Content-Type', $artwork->image_mime ?? 'image/jpeg')
-            ->header('Cache-Control', 'public, max-age=86400');
+            ->header('Cache-Control', 'public, max-age=3600, must-revalidate');
     }
 
     public function showProfile($id)
@@ -31,6 +31,6 @@ class ImageController extends Controller
 
         return response($user->profile_image_blob)
             ->header('Content-Type', $user->profile_image_mime ?? 'image/jpeg')
-            ->header('Cache-Control', 'public, max-age=86400');
+            ->header('Cache-Control', 'public, max-age=3600, must-revalidate');
     }
 }

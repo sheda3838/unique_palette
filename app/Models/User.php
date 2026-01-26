@@ -108,7 +108,7 @@ class User extends Authenticatable
     public function getProfileImageUrlAttribute(): string
     {
         if ($this->has_profile_image_blob) {
-            return route('user.profile-image', ['id' => $this->id]);
+            return route('user.profile-image', ['id' => $this->id]) . '?t=' . $this->updated_at?->timestamp;
         }
 
         if ($this->profile_photo_path) {
