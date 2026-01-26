@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -119,7 +118,7 @@ class User extends Authenticatable
             return asset('storage/' . $this->profile_photo_path);
         }
 
-        return asset('assets/default-avatar.png');
+        return asset('assets/default_profile.png');
     }
 
     public function getHasProfileImageBlobAttribute(): bool
