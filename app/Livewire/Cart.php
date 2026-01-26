@@ -19,7 +19,7 @@ class Cart extends Component
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if (!$user || !$user->isBuyer()) {
+        if (!$user || $user->role !== 'buyer') {
             abort(403);
         }
         $this->updateCart();

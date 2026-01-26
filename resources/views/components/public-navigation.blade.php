@@ -1,4 +1,4 @@
-@if(!auth()->check() || (auth()->check() && !auth()->user()->isAdmin()))
+@if(!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin'))
 <nav x-data="{ open: false }" class="bg-white/90 backdrop-blur-md shadow-sm border-b border-teal-50 fixed w-full z-50 transition-all duration-300 top-0 left-0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
@@ -30,7 +30,7 @@
                     @endguest
 
                     @auth
-                    @if(auth()->user()->isBuyer())
+                    @if(auth()->user()->role === 'buyer')
                     <x-nav-link href="{{ route('gallery') }}" :active="request()->routeIs('gallery')">
                         {{ __('Gallery') }}
                     </x-nav-link>
@@ -39,7 +39,7 @@
                     </x-nav-link>
                     @endif
 
-                    @if(auth()->user()->isArtist())
+                    @if(auth()->user()->role === 'artist')
                     <x-nav-link href="{{ route('artist.artworks') }}" :active="request()->routeIs('artist.artworks')">
                         {{ __('My Artworks') }}
                     </x-nav-link>
@@ -87,7 +87,7 @@
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
-                            @if(Auth::user()->isBuyer())
+                            @if(Auth::user()->role === 'buyer')
                             <x-dropdown-link href="{{ route('buyer.orders') }}" wire:navigate>
                                 {{ __('My Orders') }}
                             </x-dropdown-link>
@@ -162,7 +162,7 @@
             @endguest
 
             @auth
-            @if(auth()->user()->isBuyer())
+            @if(auth()->user()->role === 'buyer')
             <x-responsive-nav-link href="{{ route('gallery') }}" :active="request()->routeIs('gallery')">
                 {{ __('Gallery') }}
             </x-responsive-nav-link>
@@ -171,7 +171,7 @@
             </x-responsive-nav-link>
             @endif
 
-            @if(auth()->user()->isArtist())
+            @if(auth()->user()->role === 'artist')
             <x-responsive-nav-link href="{{ route('artist.artworks') }}" :active="request()->routeIs('artist.artworks')">
                 {{ __('My Artworks') }}
             </x-responsive-nav-link>

@@ -24,13 +24,13 @@
                             {{ __('Gallery') }}
                         </x-nav-link>
 
-                        @if(!Auth::user()->isAdmin())
+                        @if(Auth::user()->role !== 'admin')
                         <x-nav-link href="{{ route('about-us') }}" :active="request()->routeIs('about-us')">
                             {{ __('About Us') }}
                         </x-nav-link>
                         @endif
 
-                        @if(Auth::user()->isArtist())
+                        @if(Auth::user()->role === 'artist')
                         <x-nav-link href="{{ route('artist.artworks') }}" :active="request()->routeIs('artist.artworks')">
                             {{ __('My Artworks') }}
                         </x-nav-link>
@@ -39,13 +39,13 @@
                         </x-nav-link>
                         @endif
 
-                        @if(Auth::user()->isBuyer())
+                        @if(Auth::user()->role === 'buyer')
                         <x-nav-link href="{{ route('buyer.orders') }}" :active="request()->routeIs('buyer.orders')">
                             {{ __('My Orders') }}
                         </x-nav-link>
                         @endif
 
-                        @if(Auth::user()->isAdmin())
+                        @if(Auth::user()->role === 'admin')
                         <x-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
                             {{ __('Admin Dashboard') }}
                         </x-nav-link>
@@ -125,13 +125,13 @@
                     {{ __('Gallery') }}
                 </x-responsive-nav-link>
 
-                @if(!Auth::user()->isAdmin())
+                @if(Auth::user()->role !== 'admin')
                 <x-responsive-nav-link href="{{ route('about-us') }}" :active="request()->routeIs('about-us')">
                     {{ __('About Us') }}
                 </x-responsive-nav-link>
                 @endif
 
-                @if(Auth::user()->isArtist())
+                @if(Auth::user()->role === 'artist')
                 <x-responsive-nav-link href="{{ route('artist.artworks') }}" :active="request()->routeIs('artist.artworks')">
                     {{ __('My Artworks') }}
                 </x-responsive-nav-link>
@@ -140,13 +140,13 @@
                 </x-responsive-nav-link>
                 @endif
 
-                @if(Auth::user()->isBuyer())
+                @if(Auth::user()->role === 'buyer')
                 <x-responsive-nav-link href="{{ route('buyer.orders') }}" :active="request()->routeIs('buyer.orders')">
                     {{ __('My Orders') }}
                 </x-responsive-nav-link>
                 @endif
 
-                @if(Auth::user()->isAdmin())
+                @if(Auth::user()->role === 'admin')
                 <x-responsive-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
                     {{ __('Admin Dashboard') }}
                 </x-responsive-nav-link>

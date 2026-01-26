@@ -68,7 +68,7 @@
                         <p class="text-xl font-black text-[#1ABC9C]">LKR {{ number_format($artwork->price, 2) }}</p>
 
                         <div class="flex items-center gap-2" wire:ignore.self>
-                            @if(auth()->check() && auth()->user()->isArtist() && auth()->id() === $artwork->user_id)
+                            @if(auth()->check() && auth()->user()->role === 'artist' && auth()->id() === $artwork->user_id)
                             <div class="flex space-x-2">
                                 <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors" wire:click.stop>
                                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -149,7 +149,7 @@
                             </div>
 
                             <div class="mt-10 flex flex-col gap-4">
-                                @if(auth()->check() && auth()->user()->isArtist() && auth()->id() === $selectedArtwork['user_id'])
+                                @if(auth()->check() && auth()->user()->role === 'artist' && auth()->id() === $selectedArtwork['user_id'])
                                 <div class="grid grid-cols-2 gap-4">
                                     <button type="button" class="flex items-center justify-center px-6 py-4 rounded-2xl border-2 border-gray-200 text-base font-black text-[#2C3E50] hover:bg-gray-50 transition-all uppercase tracking-wider">
                                         Edit

@@ -33,7 +33,7 @@ class EditArtwork extends Component
         $user = Auth::user();
 
         // Security check: ensure user is an artist, the artwork belongs to the user and is NOT sold
-        if (!$user || !$user->isArtist() || $artwork->user_id !== $user->id || $artwork->status === 'sold') {
+        if (!$user || $user->role !== 'artist' || $artwork->user_id !== $user->id || $artwork->status === 'sold') {
             abort(403, 'You are not authorized to edit this artwork or it has been sold.');
         }
 

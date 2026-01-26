@@ -24,7 +24,7 @@ class UploadArtwork extends Component
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if (!$user || !$user->isArtist()) {
+        if (!$user || $user->role !== 'artist') {
             abort(403);
         }
     }

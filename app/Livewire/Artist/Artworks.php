@@ -23,7 +23,7 @@ class Artworks extends Component
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if (!$user || !$user->isArtist()) {
+        if (!$user || $user->role !== 'artist') {
             abort(403);
         }
     }
@@ -54,7 +54,7 @@ class Artworks extends Component
 
     public function viewArtwork($id)
     {
-        $artwork = Artwork::select('id', 'title', 'price', 'description', 'status', 'image_path')
+        $artwork = Artwork::select('id', 'title', 'price', 'description', 'status', 'image_path', 'updated_at')
             ->selectRaw('image_blob IS NOT NULL as has_image_blob')
             ->find($id);
         if ($artwork) {
@@ -80,7 +80,7 @@ class Artworks extends Component
     public function render()
     {
         return view('livewire.artist.artworks', [
-            'artworks' => Artwork::select('id', 'title', 'price', 'status', 'image_path')
+            'artworks' => Artwork::select('id', 'title', 'price', 'status', 'image_path', 'updated_at')
                 ->selectRaw('image_blob IS NOT NULL as has_image_blob')
                 ->where('user_id', Auth::id())
                 ->latest()

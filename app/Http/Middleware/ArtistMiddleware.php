@@ -18,7 +18,7 @@ class ArtistMiddleware
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        if ($user && $user->isArtist()) {
+        if ($user && $user->role === 'artist') {
             return $next($request);
         }
 

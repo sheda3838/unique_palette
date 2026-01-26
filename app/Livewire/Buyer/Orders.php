@@ -20,7 +20,7 @@ class Orders extends Component
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if (!$user || !$user->isBuyer()) {
+        if (!$user || $user->role !== 'buyer') {
             abort(403);
         }
     }

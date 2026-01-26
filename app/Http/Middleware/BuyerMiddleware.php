@@ -15,7 +15,7 @@ class BuyerMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->isBuyer()) {
+        if ($request->user() && $request->user()->role === 'buyer') {
             return $next($request);
         }
 

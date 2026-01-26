@@ -27,7 +27,7 @@ class ArtGallery extends Component
         if (!Auth::check()) return collect();
         return CartItem::where('user_id', Auth::id())
             ->with(['artwork' => function ($q) {
-                $q->select('id', 'user_id', 'title', 'price', 'image_path')
+                $q->select('id', 'user_id', 'title', 'price', 'image_path', 'updated_at')
                     ->selectRaw('image_blob IS NOT NULL as has_image_blob');
             }, 'artwork.user' => function ($q) {
                 $q->select('id', 'name');
@@ -45,9 +45,9 @@ class ArtGallery extends Component
     {
         // Publicly viewable
         $artwork = Artwork::with(['user' => function ($q) {
-            $q->select('id', 'name')->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob');
+            $q->select('id', 'name', 'updated_at')->selectRaw('profile_image_blob IS NOT NULL as has_profile_image_blob');
         }])
-            ->select('id', 'user_id', 'title', 'description', 'price', 'image_path', 'status')
+            ->select('id', 'user_id', 'title', 'description', 'price', 'image_path', 'status', 'updated_at')
             ->selectRaw('image_blob IS NOT NULL as has_image_blob')
             ->find($id);
         if ($artwork) {
@@ -81,7 +81,8 @@ class ArtGallery extends Component
             return $this->redirectRoute('login', navigate: true);
         }
 
-        if (!Auth::user()->isBuyer()) {
+        $user = Auth::user();
+        if ($user->role !== 'buyer') {
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Only buyers can add items to cart.']);
             return;
         }
@@ -121,7 +122,8 @@ class ArtGallery extends Component
 
     public function deleteArtwork($id)
     {
-        if (!Auth::check() || !Auth::user()->isArtist()) {
+        $user = Auth::user();
+        if (!$user || $user->role !== 'artist') {
             abort(403);
         }
 
@@ -148,7 +150,7 @@ class ArtGallery extends Component
         $user = Auth::user();
         $query = Artwork::query();
 
-        if ($user && $user->isArtist()) {
+        if ($user && $user->role === 'artist') {
             // Artist sees their own artworks
             $query->where('user_id', $user->id);
             if ($this->search) {
@@ -169,7 +171,7 @@ class ArtGallery extends Component
         }
 
         return view('livewire.gallery.art-gallery', [
-            'artworks' => $query->select('id', 'user_id', 'title', 'price', 'image_path', 'status', 'created_at')
+            'artworks' => $query->select('id', 'user_id', 'title', 'price', 'image_path', 'status', 'created_at', 'updated_at')
                 ->selectRaw('image_blob IS NOT NULL as has_image_blob')
                 ->latest()
                 ->paginate(12),
