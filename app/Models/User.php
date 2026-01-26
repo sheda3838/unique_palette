@@ -10,7 +10,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use HasApiTokens;
 
@@ -68,7 +68,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -147,16 +146,5 @@ class User extends Authenticatable implements MustVerifyEmail
             'profile_image_blob' => null,
             'profile_image_mime' => null,
         ])->save();
-    }
-
-    /**
-     * Send the email verification notification.
-     * Overridden to use QueuedVerifyEmail for better performance and to avoid SMTP timeouts.
-     *
-     * @return void
-     */
-    public function sendEmailVerificationNotification()
-    {
-        $this->notify(new \App\Notifications\QueuedVerifyEmail);
     }
 }

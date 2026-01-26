@@ -22,7 +22,6 @@ class UserSeeder extends Seeder
                 'name' => 'System Admin',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
-                'email_verified_at' => now(),
             ]
         );
 
@@ -42,7 +41,6 @@ class UserSeeder extends Seeder
                 'name' => 'Art Collector',
                 'password' => Hash::make('password'),
                 'role' => 'buyer',
-                'email_verified_at' => now(),
                 'profile_image_blob' => $guest1Data,
                 'profile_image_mime' => $guest1Mime,
             ]
@@ -66,7 +64,6 @@ class UserSeeder extends Seeder
                 'name' => 'Master Artist',
                 'password' => Hash::make('password'),
                 'role' => 'artist',
-                'email_verified_at' => now(),
                 'profile_image_blob' => $guest2Data,
                 'profile_image_mime' => $guest2Mime,
             ]

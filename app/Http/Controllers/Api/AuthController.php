@@ -79,14 +79,4 @@ class AuthController extends Controller
             'message' => 'Successfully logged out'
         ]);
     }
-
-    /**
-     * Email verification status.
-     */
-    public function verifyEmail(Request $request)
-    {
-        return response()->json([
-            'email_verified' => $request->user()->hasVerifiedEmail(),
-        ]);
-    }
 }
